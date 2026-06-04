@@ -141,3 +141,41 @@ export function NewsletterSection() {
     </section>
   );
 }
+
+export function NotifyMeButton({ bookId, style, className }: { bookId: number; style?: React.CSSProperties; className?: string }) {
+  const [loading, setLoading] = useState(false);
+
+  const handleNotify = async () => {
+    const email = prompt("Enter your email address to get notified:");
+    if (!email) return;
+
+    setLoading(true);
+    try {
+      const resp = await fetch(`${API_BASE_URL}/books/${bookId}/notify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (resp.ok) {
+        alert("You have been added to the notification list!");
+      } else {
+        alert("Failed to subscribe. Please try again.");
+      }
+    } catch (e) {
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleNotify} 
+      className={className} 
+      style={{ ...style, opacity: loading ? 0.7 : 1, cursor: loading ? "wait" : "pointer" }}
+      disabled={loading}
+    >
+      {loading ? "Subscribing..." : "🔔 Notify me when available"}
+    </button>
+  );
+}

@@ -799,17 +799,31 @@ export default function App() {
   }, [location.pathname]);
 
   const addToCart = useCallback((book: Book) => {
+    if (book.stock <= 0) {
+      setToast(`"${book.title}" is out of stock!`);
+      return;
+    }
     setCart(prev => {
       const ex = prev.find(i => i.id === book.id);
-      if (ex) return prev.map(i => i.id === book.id ? { ...i, qty: i.qty + 1 } : i);
+      if (ex) {
+        if (ex.qty >= book.stock) {
+          setToast(`Cannot add more than ${book.stock} for "${book.title}"!`);
+          return prev;
+        }
+        return prev.map(i => i.id === book.id ? { ...i, qty: i.qty + 1 } : i);
+      }
       return [...prev, { ...book, qty: 1 }];
     });
     setToast(`"${book.title}" added to cart!`);
   }, []);
 
   const removeFromCart = useCallback((id: number) => setCart(p => p.filter(i => i.id !== id)), []);
-  const updateQty = useCallback((id: number, qty: number) => {
+  const updateQty = useCallback((id: number, qty: number, stock?: number) => {
     if (qty < 1) { removeFromCart(id); return; }
+    if (stock !== undefined && qty > stock) {
+      setToast(`Cannot exceed available stock (${stock})!`);
+      return;
+    }
     setCart(p => p.map(i => i.id === id ? { ...i, qty } : i));
   }, [removeFromCart]);
 
@@ -999,7 +1013,7 @@ export default function App() {
           <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} updateQty={updateQty} total={cartTotal} go={go as any} currentUser={currentUser} setCart={setCart} showToast={setToast} setLoginOpen={setLoginOpen} setDashboardOpen={setDashboardOpen} setDashboardTab={setDashboardTab} />} />
           <Route path="/book/:id" element={<BookPageWrapper books={books} addToCart={addToCart} go={go} />} />
           <Route path="/read/:id" element={<FreeReaderPage books={books} />} />
-          <Route path="/admin" element={<AdminPanel go={go as any} books={books} refreshBooks={refreshAll} frontStats={frontStats} testimonials={testimonials} />} />
+          <Route path="/admin" element={<AdminPanel go={go as any} books={books} refreshBooks={refreshAll} refreshTestimonials={fetchTestimonials} frontStats={frontStats} testimonials={testimonials} />} />
         </Routes>
       </main>
 

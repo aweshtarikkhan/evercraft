@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Book } from "../types";
-import { Stars, Disc, BookCoverSVG } from "../components/common/UIComponents";
+import { Stars, Disc, BookCoverSVG, NotifyMeButton } from "../components/common/UIComponents";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 
@@ -192,9 +192,12 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
                     {book.is_upcoming ? (
-                      <button onClick={() => openBook(book)} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13 }}>📖 View Details</button>
+                      <div style={{ display: 'flex', gap: 8, flex: 1, flexDirection: 'column' }}>
+                        <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, background: "#730000", color: "#fff", border: "none", fontSize: 13, padding: "10px 8px" }} />
+                        <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000", fontSize: 13, padding: "10px 8px" }}>💖 Wishlist</button>
+                      </div>
                     ) : book.price === 0 ? (
-                      <Link to={`/read/${book.id}`} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13, textDecoration: "none", textAlign: "center", background: "#059669" }}>📖 Read Now</Link>
+                      <Link to={`/read/${book.id}`} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
                     ) : (
                       <button onClick={() => addToCart(book)} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13 }}>🛒 Add to Cart</button>
                     )}

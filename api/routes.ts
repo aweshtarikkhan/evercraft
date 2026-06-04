@@ -417,6 +417,9 @@ router.post('/orders', validate(OrderCreateSchema), async (req: Request, res: Re
         return res.status(404).json({ detail: `Book with id ${item.id} not found.` });
       }
       const book = books[0];
+      if (book.stock < item.qty) {
+        return res.status(400).json({ detail: `Insufficient stock for ${book.title}. Available: ${book.stock}` });
+      }
       subtotal += book.price * item.qty;
       fullItemsDetails.push({
         id: book.id,
@@ -459,6 +462,11 @@ router.post('/orders', validate(OrderCreateSchema), async (req: Request, res: Re
       'INSERT INTO orders (user_id, user_name, shipping_address_id, items, total, coupon_code, discount_amount, gst_amount, shipping_cost, `date`, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [user_id, user_name, shipping_address_id, itemsJsonString, final_total, coupon_code || null, discount_amount, gst_amount, shipping_cost, dateStr, 'Order Placed']
     );
+
+    // 6. Decrement stock
+    for (const item of items) {
+      await query('UPDATE books SET stock = stock - ? WHERE id = ?', [item.qty, item.id]);
+    }
 
     // Clear cart in database on successful order
     try {
@@ -840,7 +848,7 @@ router.post('/books', validate(BookCreateSchema), async (req: Request, res: Resp
     title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
     pages, badge, rating, reviews, available, frontCover, backCover,
     amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-    is_hero, is_bestseller
+    is_hero, is_bestseller, stock, is_upcoming
   } = req.body;
   
   await query(
@@ -848,17 +856,62 @@ router.post('/books', validate(BookCreateSchema), async (req: Request, res: Resp
       title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
       pages, badge, rating, reviews, available, frontCover, backCover,
       amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-      is_hero, is_bestseller
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      is_hero, is_bestseller, stock, is_upcoming
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
       pages, badge, rating, reviews, available, frontCover, backCover,
       amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-      is_hero, is_bestseller
+      is_hero, is_bestseller, stock, is_upcoming
     ]
   );
   
   return res.json({ message: 'Book added' });
+});
+
+router.put('/books/:id', validate(BookCreateSchema), async (req: Request, res: Response) => {
+  const bookId = parseInt(req.params.id);
+  const {
+    title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
+    pages, badge, rating, reviews, available, frontCover, backCover,
+    amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
+    is_hero, is_bestseller, stock, is_upcoming
+  } = req.body;
+
+  await query(
+    `UPDATE books SET
+      title=?, titleHindi=?, author=?, authorHindi=?, mrp=?, price=?, isbn=?, genre=?, language=?,
+      pages=?, badge=?, rating=?, reviews=?, available=?, frontCover=?, backCover=?,
+      amazonLink=?, flipkartLink=?, ondcLink=?, description=?, descriptionHindi=?,
+      is_hero=?, is_bestseller=?, stock=?, is_upcoming=?
+    WHERE id=?`,
+    [
+      title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
+      pages, badge, rating, reviews, available, frontCover, backCover,
+      amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
+      is_hero, is_bestseller, stock, is_upcoming, bookId
+    ]
+  );
+  
+  return res.json({ message: 'Book updated' });
+});
+
+router.delete('/books/:id', async (req: Request, res: Response) => {
+  const bookId = parseInt(req.params.id);
+  await query('DELETE FROM books WHERE id = ?', [bookId]);
+  return res.json({ message: 'Book deleted successfully' });
+});
+
+router.post('/books/:id/notify', async (req: Request, res: Response) => {
+  const bookId = parseInt(req.params.id);
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  await query(
+    'INSERT INTO book_notifications (book_id, user_email) VALUES (?, ?)',
+    [bookId, email]
+  );
+  return res.json({ message: 'Notification subscription successful' });
 });
 
 router.post('/books/hero/:book_id', async (req: Request, res: Response) => {

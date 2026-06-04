@@ -132,7 +132,9 @@ export const BookCreateSchema = z.object({
   description: z.string(),
   descriptionHindi: z.string(),
   is_hero: z.boolean().default(false),
-  is_bestseller: z.boolean().default(false)
+  is_bestseller: z.boolean().default(false),
+  stock: z.number().int().default(0),
+  is_upcoming: z.boolean().default(false)
 });
 
 export const SupabaseLoginSchema = z.object({

@@ -360,7 +360,7 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
                       <div style={{ display: "flex", alignItems: "center", border: "1.5px solid rgba(115, 0, 0, 0.15)", borderRadius: 8, overflow: "hidden", background: "#ffffff" }}>
                         <button onClick={() => updateQty(item.id, item.qty - 1)} style={{ background: "none", border: "none", padding: "6px 12px", cursor: "pointer", fontWeight: 700, fontSize: 16, color: "#730000" }}>−</button>
                         <span style={{ padding: "6px 14px", fontWeight: 700, fontSize: 14, borderLeft: "1.5px solid rgba(115, 0, 0, 0.15)", borderRight: "1.5px solid rgba(115, 0, 0, 0.15)", color: "#2d1b10" }}>{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, item.qty + 1)} style={{ background: "none", border: "none", padding: "6px 12px", cursor: "pointer", fontWeight: 700, fontSize: 16, color: "#730000" }}>+</button>
+                        <button onClick={() => updateQty(item.id, item.qty + 1, item.stock)} style={{ background: "none", border: "none", padding: "6px 12px", cursor: "pointer", fontWeight: 700, fontSize: 16, color: "#730000" }}>+</button>
                       </div>
                       <strong style={{ color: "#730000", fontSize: 18 }}>₹{item.price * item.qty}</strong>
                       <button onClick={() => removeFromCart(item.id)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 13, fontWeight: 600 }}>🗑️ Remove</button>

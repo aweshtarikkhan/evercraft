@@ -91,7 +91,32 @@ export async function initDb() {
         description TEXT, 
         descriptionHindi TEXT, 
         is_hero BOOLEAN DEFAULT FALSE, 
-        is_bestseller BOOLEAN DEFAULT FALSE
+        is_bestseller BOOLEAN DEFAULT FALSE,
+        stock INT DEFAULT 0,
+        is_upcoming BOOLEAN DEFAULT FALSE
+      )
+    `);
+
+    // Safely add stock column if it doesn't exist
+    try {
+      await query(`ALTER TABLE books ADD COLUMN stock INT DEFAULT 0`);
+    } catch (e: any) {
+      if (e.code !== 'ER_DUP_FIELDNAME') console.error('Error adding stock column:', e);
+    }
+
+    // Safely add is_upcoming column if it doesn't exist
+    try {
+      await query(`ALTER TABLE books ADD COLUMN is_upcoming BOOLEAN DEFAULT FALSE`);
+    } catch (e: any) {
+      if (e.code !== 'ER_DUP_FIELDNAME') console.error('Error adding is_upcoming column:', e);
+    }
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS book_notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        book_id INT,
+        user_email VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

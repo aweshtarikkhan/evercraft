@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Page, Book } from "../types";
-import { Stars, Disc } from "../components/common/UIComponents";
+import { Stars, Disc, NotifyMeButton } from "../components/common/UIComponents";
 import { SERVICES, TESTIMONIALS } from "../constants/data";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
@@ -590,7 +590,10 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                          </div>
                                          <div style={{ display: "flex", gap: 12 }}>
                                              {bestsellerBook.is_upcoming ? (
-                                                 <button onClick={() => openBook(bestsellerBook)} className="btn-primary" style={{ flex: 1 }}>📖 View Details</button>
+                                                 <>
+                                                   <NotifyMeButton bookId={bestsellerBook.id} className="btn-primary" style={{ flex: 1, background: "#730000", color: "#fff", border: "none" }} />
+                                                   <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000" }}>💖 Wishlist</button>
+                                                 </>
                                              ) : bestsellerBook.price === 0 ? (
                                                  <Link to={`/read/${bestsellerBook.id}`} className="btn-primary" style={{ flex: 1, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
                                              ) : (

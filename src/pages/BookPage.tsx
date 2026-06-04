@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Page, Book } from "../types";
-import { Stars, Disc, BookCoverSVG } from "../components/common/UIComponents";
+import { Stars, Disc, BookCoverSVG, NotifyMeButton } from "../components/common/UIComponents";
 import { WordReveal } from "../components/common/WordReveal";
 
 export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: Book) => void; go: (p: Page) => void; }) {
@@ -153,17 +153,12 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
 
           <div style={{ display: "flex", gap: 14, marginBottom: 32 }}>
             {book.is_upcoming ? (
-              <div style={{ flex: 1, padding: "16px", background: "#FAF5EF", border: "2px dashed #D4AF37", borderRadius: 12, textAlign: "center", color: "#2D1B10", fontWeight: 700 }}>
-                📢 Releasing Soon! Stay tuned for updates.
+              <div style={{ display: "flex", gap: 12 }}>
+                <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, background: "#730000", color: "#fff", border: "none" }} />
+                <button style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>💖 Wishlist</button>
               </div>
             ) : book.price === 0 ? (
-              <Link 
-                to={`/read/${book.id}`} 
-                className="btn-primary" 
-                style={{ flex: 1, padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", background: "#059669" }}
-              >
-                📖 Read Now (Free)
-              </Link>
+              <Link to={`/read/${book.id}`} className="btn-primary" style={{ padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now for Free</Link>
             ) : (
               <>
                 <button className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15 }} onClick={() => addToCart(book)}>🛒 Add to Cart</button>

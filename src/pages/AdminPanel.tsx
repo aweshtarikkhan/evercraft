@@ -43,12 +43,14 @@ export function AdminPanel({
   go,
   books,
   refreshBooks,
+  refreshTestimonials,
   frontStats,
   testimonials
 }: {
   go: (p: Page) => void;
   books: Book[];
   refreshBooks: () => any;
+  refreshTestimonials?: () => any;
   frontStats: any;
   testimonials: any[];
 }) {
@@ -754,42 +756,60 @@ export function AdminPanel({
                       <td style={{ padding: 12 }}>{b.stock}</td>
                       <td style={{ padding: 12 }}><span style={{ background: b.available ? "#dcfce7" : "#fee2e2", color: b.available ? "#16a34a" : "#dc2626", padding: "4px 8px", borderRadius: 12, fontSize: 12, fontWeight: 600 }}>{b.available ? "Listed" : "Unlisted"}</span></td>
                       <td style={{ padding: 12 }}>
-                        <button
-                          onClick={() => {
-                            setEditingBook(b);
-                            setBookForm({
-                              title: b.title || "",
-                              titleHindi: b.titleHindi || "",
-                              author: b.author || "",
-                              authorHindi: b.authorHindi || "",
-                              mrp: String(b.mrp || ""),
-                              price: String(b.price || ""),
-                              isbn: b.isbn || "",
-                              genre: b.genre || "",
-                              language: b.language || "English",
-                              pages: String(b.pages || ""),
-                              badge: b.badge || "",
-                              rating: String(b.rating || "5"),
-                              reviews: String(b.reviews || "0"),
-                              availability: b.available ? "In Stock" : "Out of Stock",
-                              stock: String(b.stock || "0"),
-                              publisher: b.publisher || "EverCraft Publications",
-                              amazonLink: b.amazonLink || "",
-                              flipkartLink: b.flipkartLink || "",
-                              ondcLink: b.ondcLink || "",
-                              description: b.description || "",
-                              descriptionHindi: b.descriptionHindi || "",
-                              frontCoverUrl: b.frontCover || "",
-                              backCoverUrl: b.backCover || "",
-                              is_upcoming: !!b.is_upcoming,
-                              release_date: b.release_date || "Coming Soon"
-                            });
-                            setShowAddBook(true);
-                          }}
-                          style={{ background: "#fef3c7", color: "#1c1917", border: "1.5px solid #2D1B10", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 12 }}
-                        >
-                          Edit
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => {
+                              setEditingBook(b);
+                              setBookForm({
+                                title: b.title || "",
+                                titleHindi: b.titleHindi || "",
+                                author: b.author || "",
+                                authorHindi: b.authorHindi || "",
+                                mrp: String(b.mrp || ""),
+                                price: String(b.price || ""),
+                                isbn: b.isbn || "",
+                                genre: b.genre || "",
+                                language: b.language || "English",
+                                pages: String(b.pages || ""),
+                                badge: b.badge || "",
+                                rating: String(b.rating || "4.5"),
+                                reviews: String(b.reviews || "0"),
+                                availability: b.available ? "In Stock" : "Out of Stock",
+                                frontCoverUrl: b.frontCover || "",
+                                backCoverUrl: b.backCover || "",
+                                amazonLink: b.amazonLink || "",
+                                flipkartLink: b.flipkartLink || "",
+                                ondcLink: b.ondcLink || "",
+                                description: b.description || "",
+                                descriptionHindi: b.descriptionHindi || "",
+                                stock: String(b.stock || "0"),
+                                is_upcoming: b.is_upcoming || false,
+                                release_date: b.release_date || "",
+                                publisher: b.publisher || ""
+                              });
+                              setShowAddBook(true);
+                            }}
+                            style={{ background: "#fef3c7", color: "#1c1917", border: "1.5px solid #2D1B10", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 12 }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Are you sure you want to delete "${b.title}"?`)) {
+                                try {
+                                  await fetch(`${API_BASE_URL}/books/${b.id}`, { method: 'DELETE' });
+                                  refreshBooks();
+                                  alert('Book deleted successfully');
+                                } catch (e) {
+                                  alert('Failed to delete book');
+                                }
+                              }
+                            }}
+                            style={{ background: "#fee2e2", color: "#dc2626", border: "1.5px solid #dc2626", padding: "6px 12px", borderRadius: 8, cursor: "pointer", fontWeight: 700, fontSize: 12 }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1447,7 +1467,7 @@ export function AdminPanel({
                             try {
                               const res = await fetch(`${API_BASE_URL}/testimonials/${t.id}`, { method: "DELETE" });
                               if (res.ok) {
-                                refreshBooks();
+                                if (refreshTestimonials) refreshTestimonials();
                                 alert("Testimonial deleted successfully!");
                               } else {
                                 alert("Failed to delete testimonial");
@@ -1876,7 +1896,7 @@ export function AdminPanel({
                 });
 
                 if (response.ok) {
-                  refreshBooks();
+                  if (refreshTestimonials) refreshTestimonials();
                   setShowAddTestimonial(false);
                   setEditingTestimonial(null);
                   alert(editingTestimonial ? "Testimonial Updated!" : "Testimonial Added!");
