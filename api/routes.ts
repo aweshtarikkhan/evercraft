@@ -931,7 +931,26 @@ router.post('/books/bestseller/:book_id', async (req: Request, res: Response) =>
 // ─── ROUTES: TESTIMONIALS ────────────────────────────────────────────────────────
 
 router.get('/testimonials', async (req: Request, res: Response) => {
-  const testimonials = await query('SELECT * FROM testimonials ORDER BY id DESC');
+  let testimonials = await query('SELECT * FROM testimonials ORDER BY id DESC');
+  
+  // Auto-seed if empty
+  if (!testimonials || testimonials.length === 0) {
+    const defaultTestimonials = [
+      { name: "Priya Sharma", role: "First-time Author", text: "EverCraft made my dream of becoming a published author a reality. Their team was incredibly supportive throughout!", rating: 5, avatar: "PS" },
+      { name: "Rajesh Kumar", role: "Spiritual Writer", text: "The editorial team truly understands spiritual literature. My book has reached thousands of readers across India.", rating: 5, avatar: "RK" },
+      { name: "Anita Verma", role: "Self-Help Author", text: "From manuscript to bookshelf in record time, with exceptional quality. Best publishing partner I could ask for!", rating: 5, avatar: "AV" },
+      { name: "Kavita Sharma", role: "Fiction Writer", text: "A phenomenal experience! They took care of everything and my book is now an Amazon Bestseller.", rating: 5, avatar: "KS" },
+      { name: "Prince Raj", role: "Reader", text: "This platform offers an excellent collection of books with diverse and engaging content. Every book is well-written, inspiring, and easy to understand. The quality of publishing is impressive, making reading a great experience. Highly recommended for readers and aspiring authors looking for meaningful and professionally published books.", rating: 5, avatar: "PR" }
+    ];
+    for (const t of defaultTestimonials) {
+      await query(
+        'INSERT INTO testimonials (name, role, text, rating, avatar) VALUES (?, ?, ?, ?, ?)',
+        [t.name, t.role, t.text, t.rating, t.avatar]
+      );
+    }
+    testimonials = await query('SELECT * FROM testimonials ORDER BY id DESC');
+  }
+
   return res.json(testimonials || []);
 });
 
