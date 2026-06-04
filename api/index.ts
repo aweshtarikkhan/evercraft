@@ -40,12 +40,12 @@ app.get('/api/cron/check-abandoned-carts', async (req, res) => {
   }
 });
 
-// Run local listener only when run directly (not under serverless Vercel)
-if (process.env.NODE_ENV !== 'production') {
+// Run local listener only when not running on Vercel serverless
+if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 8000;
   initDb().then(() => {
     app.listen(PORT, () => {
-      console.log(`🚀 EverCraft Node API is running locally on http://localhost:${PORT}`);
+      console.log(`🚀 EverCraft Node API is running on http://localhost:${PORT}`);
     });
   }).catch(err => {
     console.error('Failed to initialize local DB:', err);
