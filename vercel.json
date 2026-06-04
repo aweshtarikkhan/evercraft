@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.ts" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/check-abandoned-carts",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
