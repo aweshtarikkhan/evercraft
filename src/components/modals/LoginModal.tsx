@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Page, User } from "../../types";
 import { supabase } from "../../utils/supabase";
+import { uploadImageToCloudinary } from "../../utils/cloudinary";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -13,6 +14,7 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
   const [password, setPassword] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [profileImgRaw, setProfileImgRaw] = useState<string | null>(null);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,10 +88,20 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
 
       // 4. Create User in Local Database
       try {
+        let finalProfileImg = "";
+        if (profileImgRaw) {
+          showToast("⏳ Uploading profile picture...");
+          try {
+            finalProfileImg = await uploadImageToCloudinary(profileImgRaw);
+          } catch(e) {
+            showToast("⚠️ Image upload failed, continuing without it.");
+          }
+        }
+
         const signupReq = await fetch(`${API_BASE_URL}/users`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, phone, password, status: "Logged In" })
+          body: JSON.stringify({ name, email, phone, password, profile_image: finalProfileImg, status: "Logged In" })
         });
         
         if (!signupReq.ok) {
@@ -229,6 +241,22 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
             
             {tab === "signup" && !otpSent && (
               <>
+                <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 16 }}>
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#1C1109", border: "2px dashed #D4AF37", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {profileImgRaw ? <img src={profileImgRaw} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ fontSize: 24, color: "#D4AF37" }}>👤</span>}
+                  </div>
+                  <label style={{ cursor: "pointer", color: "#D4AF37", fontWeight: 700, fontSize: 13, background: "#1C1109", border: "1px solid rgba(212, 175, 55, 0.3)", padding: "8px 16px", borderRadius: 20 }}>
+                    Upload Photo (Optional)
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => {
+                      if (e.target.files && e.target.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = () => setProfileImgRaw(reader.result as string);
+                        reader.readAsDataURL(e.target.files[0]);
+                      }
+                      e.target.value = "";
+                    }} />
+                  </label>
+                </div>
                 <input required type="text" placeholder="Full Name" value={name} onChange={e => setName(e.target.value)} style={{ width: "100%", padding: "14px 16px", border: "1.5px solid rgba(212, 175, 55, 0.25)", borderRadius: 10, fontSize: 14, outline: "none", boxSizing: "border-box", background: "#ffffff", color: "#1c1917" }} />
                 <input required type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} style={{ width: "100%", padding: "14px 16px", border: "1.5px solid rgba(212, 175, 55, 0.25)", borderRadius: 10, fontSize: 14, outline: "none", boxSizing: "border-box", background: "#ffffff", color: "#1c1917" }} />
                 <input required type="tel" placeholder="Mobile No." value={phone} onChange={e => setPhone(e.target.value)} style={{ width: "100%", padding: "14px 16px", border: "1.5px solid rgba(212, 175, 55, 0.25)", borderRadius: 10, fontSize: 14, outline: "none", boxSizing: "border-box", background: "#ffffff", color: "#1c1917" }} />
