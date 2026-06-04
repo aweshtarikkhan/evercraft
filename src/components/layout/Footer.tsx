@@ -79,39 +79,19 @@ export function Footer({ go, books = [], settings = {} }: { go?: (p: Page) => vo
           <span>© 2026 EverCraft Publications All Rights Reserved Emerging Thoughts Pvt. Ltd. CIN#U73200MP2025PTC074472</span>
           <div style={{ display: "flex", gap: 20 }}>
             {[
-              { name: "Privacy Policy", link: "/Images/Privacy Policy - EverCraft Publications.pdf" },
-              { name: "Terms & Conditions", link: "/Images/Terms & Conditions - EverCraft Publications.pdf" },
-              { name: "Refund Policy", link: "/Images/Refund Policy - EverCraft Publications.pdf" }
+              { name: "Privacy Policy", link: "/privacy-policy" },
+              { name: "Terms & Conditions", link: "/terms-conditions" },
+              { name: "Refund Policy", link: "/refund-policy" }
             ].map(t => (
-              <a 
+              <Link 
                 key={t.name} 
-                href={t.link} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                type="application/pdf"
+                to={t.link}
                 style={{ cursor: "pointer", transition: "color 0.2s", color: "#E6D5C3", textDecoration: "none" }} 
                 onMouseEnter={e => e.currentTarget.style.color = "#D4AF37"} 
                 onMouseLeave={e => e.currentTarget.style.color = "#E6D5C3"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const pdfWindow = window.open("");
-                  if (pdfWindow) {
-                    pdfWindow.document.write(`
-                      <html>
-                        <head><title>${t.name}</title></head>
-                        <body style="margin: 0; overflow: hidden;">
-                          <embed src="${t.link}" type="application/pdf" width="100%" height="100%" />
-                        </body>
-                      </html>
-                    `);
-                    pdfWindow.document.close();
-                  } else {
-                    window.open(t.link, "_blank");
-                  }
-                }}
               >
                 {t.name}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
