@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Page, User } from "../../types";
 import { supabase } from "../../utils/supabase";
-import { uploadImageToCloudinary } from "../../utils/cloudinary";
+import { uploadImageToCloudinary, compressImage } from "../../utils/cloudinary";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -247,11 +247,14 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
                   </div>
                   <label style={{ cursor: "pointer", color: "#D4AF37", fontWeight: 700, fontSize: 13, background: "#1C1109", border: "1px solid rgba(212, 175, 55, 0.3)", padding: "8px 16px", borderRadius: 20 }}>
                     Upload Photo (Optional)
-                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => {
+                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={async e => {
                       if (e.target.files && e.target.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = () => setProfileImgRaw(reader.result as string);
-                        reader.readAsDataURL(e.target.files[0]);
+                        try {
+                          const compressed = await compressImage(e.target.files[0], 1);
+                          setProfileImgRaw(compressed);
+                        } catch (err: any) {
+                          showToast(`⚠️ ${err.message || "Failed to process image"}`);
+                        }
                       }
                       e.target.value = "";
                     }} />

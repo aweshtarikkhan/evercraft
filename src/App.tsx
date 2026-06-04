@@ -360,9 +360,12 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
                     Change Image
                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={async e => {
                       if (e.target.files && e.target.files[0]) {
-                        const reader = new FileReader();
-                        reader.onload = () => setCropImageRaw(reader.result as string);
-                        reader.readAsDataURL(e.target.files[0]);
+                        try {
+                          const compressed = await compressImage(e.target.files[0], 1);
+                          setCropImageRaw(compressed);
+                        } catch (err: any) {
+                          showToast(`⚠️ ${err.message || "Failed to process image"}`);
+                        }
                       }
                       e.target.value = "";
                     }} />
