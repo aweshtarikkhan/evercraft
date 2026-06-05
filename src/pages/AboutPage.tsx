@@ -196,7 +196,7 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
             ))}
           </motion.div>
         </div>
-      </section>
+      </div>
 
       {/* EXPERT TEAMS */}
       <section style={{ padding: "80px 24px", background: "#FAF5EF", borderTop: "1.5px solid rgba(115, 0, 0, 0.15)" }}>
