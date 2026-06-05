@@ -328,9 +328,14 @@ export async function initDb() {
     await query(`
       CREATE TABLE IF NOT EXISTS settings (
         s_key VARCHAR(255) PRIMARY KEY, 
-        s_value VARCHAR(255)
+        s_value LONGTEXT
       )
     `);
+
+    // Upgrade column if it's already created as VARCHAR
+    try {
+      await query(`ALTER TABLE settings MODIFY COLUMN s_value LONGTEXT`);
+    } catch (e) {}
 
     await query(`INSERT IGNORE INTO settings (s_key, s_value) VALUES ('gst_percent', '0')`);
     await query(`INSERT IGNORE INTO settings (s_key, s_value) VALUES ('shipping_cost', '0')`);

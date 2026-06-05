@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Page, Book } from "../types";
 import { BookCoverSVG } from "../components/common/UIComponents";
 import { uploadImageToCloudinary } from "../utils/cloudinary";
+import { DeveloperSettingsTab } from "../components/admin/DeveloperSettingsTab";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -105,13 +106,13 @@ export function AdminPanel({
   const [userAddresses, setUserAddresses] = useState<any[]>([]);
 
   const [adminTab, setAdminTab] = useState<
-    "dashboard" | "books" | "users" | "orders" | "newsletter" | "messages" | "testimonials" | "team"
+    "dashboard" | "books" | "users" | "orders" | "newsletter" | "messages" | "testimonials" | "team" | "developer"
   >(() => {
     return (sessionStorage.getItem("evercraft_adminTab") as any) || "dashboard";
   });
 
   const changeAdminTab = (
-    tab: "dashboard" | "books" | "users" | "orders" | "newsletter" | "messages" | "testimonials" | "team"
+    tab: "dashboard" | "books" | "users" | "orders" | "newsletter" | "messages" | "testimonials" | "team" | "developer"
   ) => {
     setAdminTab(tab);
     sessionStorage.setItem("evercraft_adminTab", tab);
@@ -498,6 +499,9 @@ export function AdminPanel({
           {hasTabAccess("testimonials") && (
             <button onClick={() => changeAdminTab("testimonials")} style={{ textAlign: "left", padding: "12px 16px", background: adminTab === "testimonials" ? "#730000" : "transparent", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>⭐ Testimonials</button>
           )}
+          {(adminRole === "Developer" || adminRole === "Developer Admin") && (
+            <button onClick={() => changeAdminTab("developer")} style={{ textAlign: "left", padding: "12px 16px", background: adminTab === "developer" ? "#730000" : "transparent", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>⚙️ Developer Options</button>
+          )}
         </div>
         <div style={{ padding: 16, borderTop: "1px solid rgba(255,255,255,0.15)", display: "flex", flexDirection: "column", gap: 10 }}>
           <button onClick={() => go("home")} style={{ width: "100%", padding: "12px", background: "#730000", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600, textAlign: "center" }}>🏠 Back to Website</button>
@@ -876,6 +880,10 @@ export function AdminPanel({
               </table>
             </div>
           </div>
+        )}
+
+        {adminTab === "developer" && (
+          <DeveloperSettingsTab />
         )}
 
         {adminTab === "users" && (

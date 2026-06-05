@@ -601,6 +601,9 @@ router.get('/coupons/validate/:code', async (req: Request, res: Response) => {
   return res.status(404).json({ detail: 'Invalid coupon code' });
 });
 
+import fs from 'fs';
+import path from 'path';
+
 router.get('/settings', async (req: Request, res: Response) => {
   const settings = await query('SELECT * FROM settings');
   const settingsMap: Record<string, string> = {};
@@ -610,17 +613,60 @@ router.get('/settings', async (req: Request, res: Response) => {
   return res.json(settingsMap);
 });
 
-router.post('/settings', validate(SettingsUpdateSchema), async (req: Request, res: Response) => {
-  const { gst_percent, shipping_cost } = req.body;
-  await query(
-    'INSERT INTO settings (s_key, s_value) VALUES (\'gst_percent\', ?) ON DUPLICATE KEY UPDATE s_value=?',
-    [gst_percent, gst_percent]
-  );
-  await query(
-    'INSERT INTO settings (s_key, s_value) VALUES (\'shipping_cost\', ?) ON DUPLICATE KEY UPDATE s_value=?',
-    [shipping_cost, shipping_cost]
-  );
+router.post('/settings', async (req: Request, res: Response) => {
+  const updates = req.body;
+  if (typeof updates !== 'object' || updates === null) {
+    return res.status(400).json({ error: 'Body must be an object of key-value pairs' });
+  }
+
+  // Iterate through all provided keys and update them
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof value === 'string') {
+      await query(
+        'INSERT INTO settings (s_key, s_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE s_value=?',
+        [key, value, value]
+      );
+    }
+  }
+
   return res.json({ message: 'Settings updated' });
+});
+
+router.post('/settings/sync', async (req: Request, res: Response) => {
+  try {
+    const contentPath = path.join(process.cwd(), 'src', 'content.json');
+    if (!fs.existsSync(contentPath)) {
+      return res.status(404).json({ error: 'content.json not found' });
+    }
+
+    const fileData = fs.readFileSync(contentPath, 'utf8');
+    const contentJson = JSON.parse(fileData);
+    
+    // Process theme config
+    if (contentJson.theme) {
+      for (const [key, value] of Object.entries(contentJson.theme)) {
+        await query(
+          'INSERT IGNORE INTO settings (s_key, s_value) VALUES (?, ?)',
+          [`theme_${key}`, value]
+        );
+      }
+    }
+
+    // Process content text
+    if (contentJson.content) {
+      for (const [key, value] of Object.entries(contentJson.content)) {
+        await query(
+          'INSERT IGNORE INTO settings (s_key, s_value) VALUES (?, ?)',
+          [`content_${key}`, value]
+        );
+      }
+    }
+
+    return res.json({ message: 'Sync successful - default keys added to database if they were missing' });
+  } catch (error) {
+    console.error('Error syncing content.json:', error);
+    return res.status(500).json({ error: 'Failed to sync content' });
+  }
 });
 
 // ─── ROUTES: ADMIN & STATS ────────────────────────────────────────────────

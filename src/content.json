@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "theme": {
+    "primary_color": "#730000",
+    "background_color": "#FAF5EF",
+    "primary_font": "Inter",
+    "heading_font": "Inter"
+  },
+  "content": {
+    "home_hero_title": "Publish Your Dream Book With Us",
+    "home_hero_subtitle": "Evercraft Publications helps you bring your stories to life with professional publishing, editing, and distribution services.",
+    "home_about_title": "Why Choose Evercraft?",
+    "home_about_text": "We believe every story deserves to be heard. Our team of expert editors, designers, and marketers work closely with authors to ensure their books reach the right audience.",
+    "footer_description": "EverCraft Publications is dedicated to bringing the best stories to readers worldwide. Quality publishing, seamless distribution."
+  }
+}

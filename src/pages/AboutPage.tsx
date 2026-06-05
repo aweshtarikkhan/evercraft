@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
+import { useSettings } from "../contexts/SettingsContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -21,6 +22,7 @@ const staggerContainer = {
 };
 
 export function AboutPage({ go }: { go: (p: any) => void }) {
+  const { settings } = useSettings();
   const team = [
     { name: "Editorial Team", role: "Expert Editors & Proofreaders", icon: "✍️", desc: "Seasoned literary professionals who transform raw manuscripts into polished masterpieces." },
     { name: "Design Studio", role: "Cover & Layout Designers", icon: "🎨", desc: "Creative minds who craft visually stunning covers and interiors that stand out on any shelf." },
@@ -132,10 +134,10 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
             <span style={{ color: "#730000", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>Our Story</span>
           </div>
           <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginTop: 10, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
-            <WordReveal text="About EverCraft *Publications*" once={true} />
+            <WordReveal text={settings.content_home_about_title || "Why Choose Evercraft?"} once={true} />
           </h1>
           <p style={{ color: "#5C3A21", opacity: 0.9, fontSize: 16, maxWidth: 560, margin: "0 auto", lineHeight: 1.7 }}>
-            A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India.
+            {settings.content_home_about_text || "We believe every story deserves to be heard. Our team of expert editors, designers, and marketers work closely with authors to ensure their books reach the right audience."}
           </p>
         </motion.div>
       </div>

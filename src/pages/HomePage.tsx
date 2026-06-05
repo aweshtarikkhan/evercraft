@@ -6,6 +6,7 @@ import { Stars, Disc, NotifyMeButton } from "../components/common/UIComponents";
 import { SERVICES, TESTIMONIALS } from "../constants/data";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
+import { useSettings } from "../contexts/SettingsContext";
 
 // Animation variants
 const fadeInUp = {
@@ -75,17 +76,27 @@ const HERO_TAGLINES = [
 ];
 
 export function HomePage({ go, addToCart, openBook, books, frontStats, testimonials }: { go: (p: Page | string) => void; addToCart: (b: Book) => void; openBook: (b: Book) => void; books: Book[]; frontStats: any; testimonials: any[] }) {
+    const { settings } = useSettings();
     const testScrollRef = useRef<HTMLDivElement>(null);
     const [taglineIndex, setTaglineIndex] = useState(0);
     const [formStatus, setFormStatus] = useState<'idle'|'submitting'|'success'|'error'>('idle');
     const [formData, setFormData] = useState({ name: '', email: '', phone: '', country: '' });
 
+    const currentHeroTaglines = [
+        {
+            title: settings.content_home_hero_title || HERO_TAGLINES[0].title,
+            subtitle: settings.content_home_hero_subtitle || HERO_TAGLINES[0].subtitle
+        },
+        HERO_TAGLINES[1],
+        HERO_TAGLINES[2]
+    ];
+
     useEffect(() => {
         const timer = setInterval(() => {
-            setTaglineIndex(prev => (prev + 1) % HERO_TAGLINES.length);
+            setTaglineIndex(prev => (prev + 1) % currentHeroTaglines.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [currentHeroTaglines.length]);
 
     // Testimonials auto-slide
     useEffect(() => {
@@ -156,7 +167,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                     style={{ fontSize: "clamp(38px,5.5vw,64px)", fontWeight: 800, color: "#ffffff", lineHeight: 1.1, marginBottom: 24, letterSpacing: "-1.5px", fontFamily: "'Playfair Display', Georgia, serif" }}
                                 >
                                     <WordReveal 
-                                        text={HERO_TAGLINES[taglineIndex].title} 
+                                        text={currentHeroTaglines[taglineIndex].title} 
                                         once={false}
                                         delay={0.1}
                                     />
@@ -165,7 +176,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                 <p 
                                     style={{ color: "#FAF5EF", opacity: 0.9, fontSize: 16, lineHeight: 1.7, marginBottom: 40, maxWidth: 500 }}
                                 >
-                                    {HERO_TAGLINES[taglineIndex].subtitle}
+                                    {currentHeroTaglines[taglineIndex].subtitle}
                                 </p>
                             </motion.div>
                         </div>
@@ -179,7 +190,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
 
                         {/* Slide Indicators */}
                         <motion.div variants={fadeInUp} style={{ display: "flex", gap: 8, marginTop: 32 }}>
-                            {HERO_TAGLINES.map((_, idx) => (
+                            {currentHeroTaglines.map((_, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setTaglineIndex(idx)}

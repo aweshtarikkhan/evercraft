@@ -66,10 +66,7 @@ export const CouponCreateSchema = z.object({
   discount_percent: z.number().int()
 });
 
-export const SettingsUpdateSchema = z.object({
-  gst_percent: z.string(),
-  shipping_cost: z.string()
-});
+export const SettingsUpdateSchema = z.record(z.string());
 
 export const AdminLoginSchema = z.object({
   email: z.string(),
