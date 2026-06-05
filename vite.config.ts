@@ -11,6 +11,9 @@ const __dirname = path.dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), viteSingleFile()],
+  build: {
+    emptyOutDir: false,
+  },
   envDir: './', // Vite reads from the root workspace folder .env file
   server: {
     allowedHosts: ["acre-verse-rework.ngrok-free.dev"],
