@@ -263,17 +263,20 @@ export function AdminPanel({
   const isSuperAdmin = adminRole === "Super Admin" || adminRole === "Developer" || adminRole === "Master Admin";
 
   const hasTabAccess = (tab: string) => {
-    return true; // All admins have full access to all tabs
+    if (tab === "developer") {
+      return adminRole?.toLowerCase().includes("develop") || adminRole?.toLowerCase().includes("devlop") || adminRole?.toLowerCase() === "d" || adminRole?.toLowerCase() === "developer admin";
+    }
+    return true; // All admins have full access to all other tabs
   };
 
   useEffect(() => {
     if (isAuthenticated) {
-      const allowedTabs = ["dashboard", "books", "users", "orders", "newsletter", "messages", "testimonials", "team"].filter(hasTabAccess);
+      const allowedTabs = ["dashboard", "books", "users", "orders", "newsletter", "messages", "testimonials", "team", "developer"].filter(hasTabAccess);
       if (allowedTabs.length > 0 && !allowedTabs.includes(adminTab)) {
         changeAdminTab(allowedTabs[0] as any);
       }
     }
-  }, [adminRole, isAuthenticated]);
+  }, [adminRole, isAuthenticated, adminTab]);
 
   const addCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -499,7 +502,7 @@ export function AdminPanel({
           {hasTabAccess("testimonials") && (
             <button onClick={() => changeAdminTab("testimonials")} style={{ textAlign: "left", padding: "12px 16px", background: adminTab === "testimonials" ? "#730000" : "transparent", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>⭐ Testimonials</button>
           )}
-          {(adminRole === "Developer" || adminRole === "Developer Admin") && (
+          {(adminRole?.toLowerCase().includes("develop") || adminRole?.toLowerCase().includes("devlop") || adminRole?.toLowerCase() === "d" || adminRole?.toLowerCase() === "developer admin") && (
             <button onClick={() => changeAdminTab("developer")} style={{ textAlign: "left", padding: "12px 16px", background: adminTab === "developer" ? "#730000" : "transparent", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>⚙️ Developer Options</button>
           )}
         </div>
