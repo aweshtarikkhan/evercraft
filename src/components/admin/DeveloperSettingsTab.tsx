@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSettings } from '../contexts/SettingsContext';
+import { useSettings } from '../../contexts/SettingsContext';
 
 const adminCardStyle = { background: "#ffffff", border: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "24px", borderRadius: 16, boxShadow: "0 10px 30px rgba(0,0,0,0.05)" };
 const adminInputStyle = { padding: "12px 16px", borderRadius: 8, border: "2px solid rgba(115, 0, 0, 0.1)", fontSize: 15, background: "#faf5ef", color: "#1c1917", outline: "none", width: "100%", transition: "all 0.3s ease" };
