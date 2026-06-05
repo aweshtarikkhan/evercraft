@@ -1,16 +1,41 @@
 {
-  "version": 1,
+  "version": 2,
   "theme": {
     "primary_color": "#730000",
     "background_color": "#FAF5EF",
     "primary_font": "Inter",
-    "heading_font": "Inter"
+    "heading_font": "Playfair Display"
   },
   "content": {
     "home_hero_title": "Publish Your Dream Book With Us",
     "home_hero_subtitle": "Evercraft Publications helps you bring your stories to life with professional publishing, editing, and distribution services.",
     "home_about_title": "Why Choose Evercraft?",
     "home_about_text": "We believe every story deserves to be heard. Our team of expert editors, designers, and marketers work closely with authors to ensure their books reach the right audience.",
+    
+    "about_hero_title": "About EverCraft Publications",
+    "about_hero_subtitle": "A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India.",
+    "about_mission_title": "Not Just Publishing Books — Building Literary Ecosystems",
+    "about_mission_p1": "At EverCraft Publications, we believe every story deserves to be told and every voice deserves to be heard. We are more than a publishing house — we are a complete literary ecosystem that nurtures authors from their very first draft to a thriving readership.",
+    "about_mission_p2": "Our platform provides end-to-end publishing services, ensuring that authors receive professional support at every stage — from manuscript evaluation and editing to cover design, printing, distribution, and marketing.",
+
+    "services_hero_title": "Our Publishing Services",
+    "services_hero_subtitle": "Professional editing, design, marketing, and distribution services to turn your manuscript into a bestseller.",
+
+    "publish_hero_title": "Start Your Publishing Journey",
+    "publish_hero_subtitle": "Submit your manuscript today and let our expert team guide you to publishing success.",
+
+    "privacy_hero_title": "Privacy Policy",
+    "privacy_hero_subtitle": "Your privacy is important to us. Learn how we protect your personal information.",
+    "privacy_content": "This Privacy Policy describes how your personal information is collected, used, and shared when you visit or make a purchase from Evercraft Publications. We use your Personal Information only for providing and improving the Site. By using the Site, you agree to the collection and use of information in accordance with this policy.",
+
+    "terms_hero_title": "Terms & Conditions",
+    "terms_hero_subtitle": "Please read these terms and conditions carefully before using our service.",
+    "terms_content": "By accessing this website we assume you accept these terms and conditions. Do not continue to use Evercraft Publications if you do not agree to take all of the terms and conditions stated on this page. All content provided on this website is for informational purposes only.",
+
+    "refund_hero_title": "Cancellation & Refund Policy",
+    "refund_hero_subtitle": "Understanding our refund and cancellation terms.",
+    "refund_content": "We offer a 7-day money-back guarantee for unused and undamaged physical book purchases. For publishing services, refunds are subject to the specific terms outlined in your publishing contract. Please contact our support team to initiate any refund requests.",
+
     "footer_description": "EverCraft Publications is dedicated to bringing the best stories to readers worldwide. Quality publishing, seamless distribution."
   }
 }

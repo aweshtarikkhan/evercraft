@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { SERVICES } from "../constants/data";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
+import { useSettings } from "../contexts/SettingsContext";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -21,13 +22,14 @@ const staggerContainer = {
 };
 
 export function ServicesPage({ go }: { go: (p: any) => void }) {
+  const { settings } = useSettings();
   const process = [
     { step: "01", title: "Submit Manuscript", desc: "Send us your manuscript for a free initial evaluation by our expert editorial team.", icon: "📝" },
     { step: "02", title: "Editorial Review", desc: "Our editors provide detailed feedback, suggestions, and a roadmap for improvement.", icon: "🔍" },
     { step: "03", title: "Design & Layout", desc: "Professional cover design and interior layout crafted to perfection.", icon: "🎨" },
-    { step: "04", title: "Print & Distribute", desc: "High-quality printing and nationwide distribution across all major platforms.", icon: "🚀" },
-    { step: "05", title: "Market & Promote", desc: "Targeted marketing campaigns to maximize your book's reach and sales.", icon: "📢" },
-    { step: "06", title: "Author Success", desc: "Ongoing support, royalty management, and community building for your author brand.", icon: "🏆" },
+    { step: "04", title: "Print & Distribute", desc: "High-quality printing and nationwide distribution across all major platforms.", icon: "📦" },
+    { step: "05", title: "Market & Promote", desc: "Targeted marketing campaigns to maximize your book's reach and sales.", icon: "📈" },
+    { step: "06", title: "Author Success", desc: "Ongoing support, royalty management, and community building for your author brand.", icon: "✨" },
   ];
 
   return (
@@ -55,10 +57,10 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
             <span style={{ color: "#730000", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>Publishing Partner</span>
           </div>
           <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginTop: 10, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
-            <WordReveal text="Our *Services*" once={true} />
+            <WordReveal text={settings.content_services_hero_title || "Our *Services*"} once={true} />
           </h1>
           <p style={{ color: "#730000", opacity: 0.8, fontSize: 16, maxWidth: 560, margin: "0 auto", lineHeight: 1.7 }}>
-            From your first draft to bookstore shelves — we handle everything so you can focus on writing.
+            {settings.content_services_hero_subtitle || "Professional editing, design, marketing, and distribution services to turn your manuscript into a bestseller."}
           </p>
         </motion.div>
       </div>

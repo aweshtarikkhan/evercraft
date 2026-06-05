@@ -150,21 +150,29 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
         textColor="#550000" 
       />
 
-      {/* MISSION */}
-      <section style={{ padding: "80px 24px", background: "#FAF5EF" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 60, alignItems: "center" }} className="abt-grid">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            <span className="section-badge">Our Mission</span>
-            <h2 className="section-title" style={{ marginTop: 8, marginBottom: 24, color: "#730000" }}><WordReveal text="Not Just Publishing Books — Building Literary Ecosystems" wordClassName="brown-gold-text" /></h2>
-            <p style={{ color: "#2D1B10", lineHeight: 1.8, marginBottom: 16, fontSize: 15 }}>At EverCraft Publications, we believe every story deserves to be told and every voice deserves to be heard. We are more than a publishing house — we are a complete literary ecosystem that nurtures authors from their very first draft to a thriving readership.</p>
-            <p style={{ color: "#2D1B10", lineHeight: 1.8, marginBottom: 16, fontSize: 15 }}>Our platform provides end-to-end publishing services, ensuring that authors receive professional support at every stage — from manuscript evaluation and editing to cover design, printing, distribution, and marketing.</p>
-            <p style={{ color: "#2D1B10", lineHeight: 1.8, fontSize: 15 }}>We are committed to creating thoughtfully designed avenues for meaningful author–reader engagement through both physical and digital platforms.</p>
-          </motion.div>
+         <div style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
+          <h1 style={{ fontSize: "clamp(36px,5vw,56px)", fontWeight: 800, color: "#2D1B10", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <WordReveal text={settings.content_about_hero_title || "About EverCraft *Publications*"} once={true} />
+          </h1>
+          <p style={{ fontSize: "clamp(16px,2vw,20px)", color: "#5C3A21", opacity: 0.9, maxWidth: 800, margin: "0 auto", lineHeight: 1.6 }}>
+            {settings.content_about_hero_subtitle || "A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India."}
+          </p>
+        </div>
+
+        {/* Mission / Vision Section */}
+        <div style={{ background: "#ffffff", padding: "80px 24px", borderTop: "1px solid rgba(115, 0, 0, 0.1)", borderBottom: "1px solid rgba(115, 0, 0, 0.1)" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 60, alignItems: "center" }}>
+            <motion.div variants={fadeInUp}>
+              <h2 style={{ fontSize: "clamp(28px,4vw,40px)", fontWeight: 800, color: "#730000", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
+                {settings.content_about_mission_title || "Not Just Publishing Books — Building Literary Ecosystems"}
+              </h2>
+              <p style={{ fontSize: 16, color: "#5C3A21", opacity: 0.9, lineHeight: 1.8, marginBottom: 16 }}>
+                {settings.content_about_mission_p1 || "At EverCraft Publications, we believe every story deserves to be told and every voice deserves to be heard. We are more than a publishing house — we are a complete literary ecosystem that nurtures authors from their very first draft to a thriving readership."}
+              </p>
+              <p style={{ fontSize: 16, color: "#5C3A21", opacity: 0.9, lineHeight: 1.8 }}>
+                {settings.content_about_mission_p2 || "Our platform provides end-to-end publishing services, ensuring that authors receive professional support at every stage — from manuscript evaluation and editing to cover design, printing, distribution, and marketing."}
+              </p>
+            </motion.div>
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}

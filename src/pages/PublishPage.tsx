@@ -34,10 +34,10 @@ export function PublishPage({ settings = {} }: { settings?: any }) {
             <span style={{ color: "#730000", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>For Authors</span>
           </div>
           <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginTop: 10, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
-            <WordReveal text="Publish With *EverCraft*" once={true} />
+            <WordReveal text={settings.content_publish_hero_title || "Publish With *EverCraft*"} once={true} />
           </h1>
           <p style={{ color: "#5C3A21", opacity: 0.9, fontSize: 16, maxWidth: 520, margin: "0 auto", lineHeight: 1.7 }}>
-            Start your publishing journey today. Submit your manuscript and our expert team will guide you every step of the way.
+            {settings.content_publish_hero_subtitle || "Start your publishing journey today. Submit your manuscript and our expert team will guide you every step of the way."}
           </p>
         </motion.div>
       </div>
