@@ -262,20 +262,7 @@ export function AdminPanel({
   const isSuperAdmin = adminRole === "Super Admin" || adminRole === "Developer" || adminRole === "Master Admin";
 
   const hasTabAccess = (tab: string) => {
-    if (isSuperAdmin) return true;
-    if (adminRole === "Site Admin" || adminRole === "Site Administrator") {
-      return tab === "dashboard" || tab === "users" || tab === "testimonials" || tab === "team";
-    }
-    if (adminRole === "Editor" || adminRole === "Content Manager") {
-      return tab === "dashboard" || tab === "testimonials" || tab === "team";
-    }
-    if (adminRole === "Store Manager") {
-      return tab === "books" || tab === "orders";
-    }
-    if (adminRole === "Shop Clerk" || adminRole === "Customer Support") {
-      return tab === "orders";
-    }
-    return false;
+    return true; // All admins have full access to all tabs
   };
 
   useEffect(() => {
@@ -457,37 +444,11 @@ export function AdminPanel({
 
   if (!isAuthenticated) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #1c0a00 0%, #730000 40%, #730000 70%, #730000 100%)" }}>
-        <div className="animate-bounceIn" style={{ background: "#ffffff", border: "2px solid #2D1B10", padding: "40px", borderRadius: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.15)", width: "100%", maxWidth: 400 }}>
-          <h2 style={{ fontSize: 26, fontWeight: 900, marginBottom: 24, textAlign: "center", color: "#2D1B10" }}>Admin Login</h2>
-          <form onSubmit={async e => {
-            e.preventDefault();
-            try {
-              const res = await fetch(`${API_BASE_URL}/admin/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: loginEmail, password: loginPassword })
-              });
-              if (res.ok) {
-                const data = await res.json();
-                setIsAuthenticated(true);
-                sessionStorage.setItem("evercraft_admin_auth", "true");
-                sessionStorage.setItem("evercraft_admin_email", data.email || loginEmail);
-                sessionStorage.setItem("evercraft_admin_role", data.role || "Admin");
-                setAdminEmail(data.email || loginEmail);
-                setAdminRole(data.role || "Admin");
-              } else {
-                alert(`Login Failed: Invalid credentials`);
-              }
-            } catch (err) {
-              alert("Server Connection Error! Please ensure the backend is running.");
-            }
-          }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <input required type="email" placeholder="Admin Email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} style={adminInputStyle} />
-            <input required type="password" placeholder="Password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)} style={adminInputStyle} />
-            <button type="submit" className="btn-primary" style={{ padding: "16px", fontSize: 15, marginTop: 8 }}>Login to Dashboard</button>
-            <button type="button" onClick={() => go("home")} style={{ background: "none", border: "none", color: "#6b7280", marginTop: 8, cursor: "pointer", fontWeight: 600 }}>← Exit to Website</button>
-          </form>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#FAF5EF" }}>
+        <div className="animate-bounceIn" style={{ background: "#ffffff", border: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "40px", borderRadius: 24, boxShadow: "0 20px 40px rgba(0,0,0,0.05)", width: "100%", maxWidth: 400, textAlign: "center" }}>
+          <h2 style={{ fontSize: 26, fontWeight: 800, marginBottom: 12, color: "#730000" }}>Admin Access</h2>
+          <p style={{ color: "#1c1917", marginBottom: 32, fontWeight: 500 }}>Please log in from the main website to access the Admin Panel.</p>
+          <button onClick={() => go("home")} className="btn-primary" style={{ width: "100%", padding: "14px", fontSize: 16 }}>Go to Homepage</button>
         </div>
       </div>
     );
