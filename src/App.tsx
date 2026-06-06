@@ -742,8 +742,8 @@ export default function App() {
     }
     setSessionId(sid);
 
-    const consentGiven = sessionStorage.getItem('evercraft_cookie_consent');
-    if (!currentUser && !consentGiven) {
+    const consentGiven = localStorage.getItem('evercraft_cookie_consent');
+    if (!consentGiven) {
       setShowCookieConsent(true);
     } else {
       setShowCookieConsent(false);
@@ -854,7 +854,7 @@ export default function App() {
   };
 
   const handleCookieConsent = async (status: 'accepted' | 'denied') => {
-    sessionStorage.setItem('evercraft_cookie_consent', status);
+    localStorage.setItem('evercraft_cookie_consent', status);
     setShowCookieConsent(false);
 
     try {
