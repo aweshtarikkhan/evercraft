@@ -22,6 +22,7 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
   const [settings, setSettings] = useState({ gst_percent: '0', shipping_cost: '0' });
+  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
 
   useEffect(() => {
     if (showOrderSummary) {
@@ -229,9 +230,21 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
             </div>
           </div>
 
-          {/* Payment Details */}
+          {/* Payment Method & Details */}
           <div style={{ background: "#ffffff", border: "1.5px solid rgba(115, 0, 0, 0.15)", padding: 20, borderRadius: 12 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#730000', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f3f4f6' }}>Payment Details</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#730000', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f3f4f6' }}>Payment Method</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: 12, border: paymentMethod === 'online' ? '2px solid #730000' : '1px solid #d1d5db', borderRadius: 8, background: paymentMethod === 'online' ? '#FAF5EF' : '#fff' }}>
+                <input type="radio" name="payment" checked={paymentMethod === 'online'} onChange={() => setPaymentMethod('online')} style={{ accentColor: '#730000', width: 18, height: 18 }} />
+                <span style={{ fontWeight: 600, color: '#2D1B10' }}>Online Payment (Cards, UPI, NetBanking)</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: 12, border: paymentMethod === 'cod' ? '2px solid #730000' : '1px solid #d1d5db', borderRadius: 8, background: paymentMethod === 'cod' ? '#FAF5EF' : '#fff' }}>
+                <input type="radio" name="payment" checked={paymentMethod === 'cod'} onChange={() => setPaymentMethod('cod')} style={{ accentColor: '#730000', width: 18, height: 18 }} />
+                <span style={{ fontWeight: 600, color: '#2D1B10' }}>Cash on Delivery (COD)</span>
+              </label>
+            </div>
+
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: '#730000', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid #f3f4f6' }}>Payment Summary</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#2D1B10' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Total MRP</span><span>₹{totalMRP.toFixed(2)}</span></div>
               {bookDiscount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}><span>Book Discount</span><span>- ₹{bookDiscount.toFixed(2)}</span></div>}
@@ -244,15 +257,22 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
               </div>
             </div>
             <button className="btn-primary" style={{ width: "100%", marginTop: 20, padding: "15px 20px", fontSize: 15, opacity: loading ? 0.7 : 1 }}
-              onClick={() => {
+              onClick={async () => {
                 if (!selectedAddressId) {
                   showToast("⚠️ Please select a shipping address.");
                   return;
                 }
-                setShowPaymentGateway(true);
+                if (paymentMethod === 'online') {
+                  // Simulate opening a payment gateway
+                  setShowPaymentGateway(true);
+                  setShowOrderSummary(false); // Fix: close summary so modal can render!
+                } else {
+                  // COD - place order directly
+                  await handlePlaceOrder("Order Placed");
+                }
               }}
               disabled={loading}>
-              {loading ? "Processing... ⏳" : `Confirm & Pay ₹${finalTotal.toFixed(2)}`}
+              {loading ? "Processing... ⏳" : (paymentMethod === 'cod' ? `Place Order via COD` : `Proceed to Pay ₹${finalTotal.toFixed(2)}`)}
             </button>
           </div>
         </div>
