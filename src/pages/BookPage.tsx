@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Page, Book } from "../types";
 import { Stars, Disc, BookCoverSVG, NotifyMeButton } from "../components/common/UIComponents";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { WordReveal } from "../components/common/WordReveal";
 
 export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: Book) => void; go: (p: Page) => void; }) {
@@ -44,13 +46,17 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
   
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
+      <SEO 
+        title={book.title} 
+        description={book.description?.substring(0, 160) || `Buy ${book.title} by ${book.author} at EverCraft Publications.`}
+        image={book.coverUrl || book.cover_image}
+      />
       <div style={{ background: "#FAF5EF", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "12px 24px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", gap: 8, fontSize: 14, color: "#730000" }}>
-          <button onClick={() => go("home")} style={{ background: "none", border: "none", cursor: "pointer", color: "#730000", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4AF37"} onMouseLeave={e => e.currentTarget.style.color = "#730000"}>Home</button>
-          <span>›</span>
-          <button onClick={() => go("shop")} style={{ background: "none", border: "none", cursor: "pointer", color: "#730000", transition: "color 0.2s" }} onMouseEnter={e => e.currentTarget.style.color = "#D4AF37"} onMouseLeave={e => e.currentTarget.style.color = "#730000"}>Shop</button>
-          <span>›</span>
-          <span style={{ color: "#2D1B10", fontWeight: 600 }}>{book.title}</span>
+          <Breadcrumbs items={[
+            { title: 'Bookstore', path: '/shop' },
+            { title: book.title, path: `/book/${book.id}` }
+          ]} />
         </div>
       </div>
 

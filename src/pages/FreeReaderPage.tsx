@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { SEO } from "../components/common/SEO";
 import { motion, AnimatePresence } from "framer-motion";
 import { Book } from "../types";
 
@@ -103,7 +104,10 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF", color: "#2D1B10", position: "relative", padding: "60px 20px 80px", boxSizing: "border-box" }}>
-      
+      <SEO 
+        title={`Read ${activeBook.title} Online`} 
+        description={`Read ${activeBook.title} for free online at EverCraft Publications.`}
+      />
       {/* Subtle floating Close Button */}
       <Link
         to="/shop"

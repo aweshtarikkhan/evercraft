@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { SERVICES } from "../constants/data";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 import { useSettings } from "../contexts/SettingsContext";
@@ -34,19 +36,27 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
+      <SEO 
+        title="Our Services" 
+        description="Explore our comprehensive book publishing services. We offer editing, proofreading, cover design, printing, and global distribution."
+      />
       {/* HERO */}
       <div style={{ 
         background: "#ffffff", 
         minHeight: "45vh", 
         display: "flex", 
+        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center",
         padding: "40px 24px", 
         textAlign: "center", 
-        color: "#730000",
-        boxSizing: "border-box",
-        borderBottom: "1px solid rgba(115, 0, 0, 0.05)"
+        borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)",
+        position: "relative",
+        overflow: "hidden"
       }}>
+        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[{ title: 'Services', path: '/services' }]} />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

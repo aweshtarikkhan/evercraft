@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Book } from "../types";
 import { Stars, Disc, BookCoverSVG, NotifyMeButton } from "../components/common/UIComponents";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 
@@ -46,17 +48,26 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
+      <SEO 
+        title="Bookstore" 
+        description="Browse the complete collection of books published by EverCraft Publications. Discover new titles, bestsellers, and upcoming releases across various genres."
+      />
+      
       {/* HERO */}
       <div style={{ 
         background: "#ffffff", 
         minHeight: "45vh", 
         display: "flex", 
+        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center",
         padding: "40px 24px",
         boxSizing: "border-box",
         borderBottom: "1px solid rgba(115, 0, 0, 0.05)"
       }}>
+        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[{ title: 'Bookstore', path: '/shop' }]} />
+        </div>
         <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center", color: "#730000", width: "100%" }}>
           <motion.div
             initial={{ opacity: 0, y: -15 }}

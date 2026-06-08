@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { SERVICES } from "../constants/data";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 
@@ -96,11 +98,13 @@ export function ServiceDetailPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
+      <SEO title={service.title} description={service.desc} />
       {/* HERO */}
       <section style={{ 
         background: "linear-gradient(135deg, #1f0000 0%, #730000 50%, #1f0000 100%)", 
         minHeight: "calc(100vh - 112px)", 
         display: "flex", 
+        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center",
         padding: "40px 24px", 
@@ -110,6 +114,12 @@ export function ServiceDetailPage() {
         overflow: "hidden",
         boxSizing: "border-box"
       }}>
+        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[
+            { title: 'Services', path: '/services' },
+            { title: service.title, path: `/services/${service.slug}` }
+          ]} />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

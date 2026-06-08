@@ -7,6 +7,7 @@ import { SERVICES, TESTIMONIALS } from "../constants/data";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 import { useSettings } from "../contexts/SettingsContext";
+import { SEO } from "../components/common/SEO";
 
 // Animation variants
 const fadeInUp = {
@@ -126,6 +127,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
 
     return (
         <div>
+            <SEO title="Home" />
             {/* HERO */}
             <section style={{
                 background: "linear-gradient(135deg, #1f0000 0%, #730000 50%, #1f0000 100%)",

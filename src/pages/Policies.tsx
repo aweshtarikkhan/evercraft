@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSettings } from '../contexts/SettingsContext';
+import { SEO } from '../components/common/SEO';
 
 const containerStyle: React.CSSProperties = { 
   maxWidth: 800, 

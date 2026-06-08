@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Page, CartItem, User } from "../types";
 import { BookCoverSVG, Stars } from "../components/common/UIComponents";
 import { WordReveal } from "../components/common/WordReveal";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -343,7 +345,14 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
 
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
-      <div style={{ background: "#ffffff", padding: "80px 24px", textAlign: "center", color: "#730000", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)" }}>
+      <SEO 
+        title="Shopping Cart" 
+        description="View your shopping cart at EverCraft Publications."
+      />
+      <div style={{ background: "#ffffff", padding: "40px 24px", textAlign: "center", color: "#730000", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)" }}>
+        <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[{ title: 'Shopping Cart', path: '/cart' }]} />
+        </div>
         <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
           <WordReveal text="Your *Cart* 🛒" once={true} />
         </h1>

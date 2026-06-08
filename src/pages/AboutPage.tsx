@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { TextMarquee } from "../components/common/TextMarquee";
 import { WordReveal } from "../components/common/WordReveal";
 import { useSettings } from "../contexts/SettingsContext";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -109,21 +111,29 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      <SEO 
+        title="About Us" 
+        description="Learn more about EverCraft Publications. Our mission is to discover and amplify unique voices across India, providing professional publishing, editing, and distribution."
+      />
+      
       {/* HERO */}
       <div style={{ 
         background: "#ffffff", 
         borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)",
         minHeight: "45vh", 
-        display: "flex", 
+        display: "flex",
+        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center",
         padding: "40px 24px", 
         textAlign: "center", 
         color: "#730000", 
         position: "relative", 
-        overflow: "hidden",
-        boxSizing: "border-box"
+        overflow: "hidden" 
       }}>
+        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[{ title: 'About Us', path: '/about' }]} />
+        </div>
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

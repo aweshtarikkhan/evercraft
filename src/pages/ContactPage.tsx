@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { SEO } from "../components/common/SEO";
+import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { NewsletterSection } from "../components/common/UIComponents";
 import { SOCIAL_LINKS } from "../constants/data";
 import { WordReveal } from "../components/common/WordReveal";
@@ -23,8 +25,15 @@ export function ContactPage({ settings = {} }: { settings?: any }) {
 
   return (
     <div style={{ minHeight: "100vh" }}>
+      <SEO 
+        title="Contact Us" 
+        description="Get in touch with EverCraft Publications. We are here to answer your queries regarding book publishing, buying books, and other services."
+      />
       {/* HERO */}
-      <div style={{ background: "#ffffff", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "80px 24px", textAlign: "center", color: "#730000" }}>
+      <div style={{ background: "#ffffff", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "40px 24px", textAlign: "center", color: "#730000" }}>
+        <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+          <Breadcrumbs items={[{ title: 'Contact Us', path: '/contact' }]} />
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
