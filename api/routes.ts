@@ -754,6 +754,20 @@ router.put('/users/:user_id/role', async (req: Request, res: Response) => {
   return res.json({ message: 'Role updated' });
 });
 
+router.delete('/users/:user_id', async (req: Request, res: Response) => {
+  const userId = req.params.user_id;
+  try {
+    await query('DELETE FROM cart WHERE user_id = ?', [userId]);
+    await query('DELETE FROM addresses WHERE user_id = ?', [userId]);
+    await query('DELETE FROM orders WHERE user_id = ?', [userId]);
+    await query('DELETE FROM users WHERE id = ?', [userId]);
+    return res.json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 router.get('/front-stats', async (req: Request, res: Response) => {
   const statsRows = await query('SELECT * FROM front_stats WHERE id=1');
   let stats = statsRows.length > 0 ? statsRows[0] : {
