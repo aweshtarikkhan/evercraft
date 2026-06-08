@@ -32,8 +32,11 @@ async function prerender() {
     console.log(`Server started on http://localhost:${PORT}`);
   });
 
-  // 2. Launch Puppeteer
-  const browser = await puppeteer.launch({ headless: 'new' });
+  // 2. Launch Puppeteer with no-sandbox args for Linux root users
+  const browser = await puppeteer.launch({ 
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+  });
   
   // 3. Render each route
   for (const route of routes) {
