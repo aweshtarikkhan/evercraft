@@ -36,8 +36,10 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000
 export function Logo({ size = 50 }: { size?: number }) {
   return (
     <img
-      src="/Images/Evercraft Logo.png"
+      src="/Images/Evercraft Logo.webp"
       alt="Evercraft Logo"
+      width={size}
+      height={size}
       style={{ width: size, height: size, objectFit: "contain" }}
     />
   );

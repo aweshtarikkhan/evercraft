@@ -23,7 +23,14 @@ export function Footer({ go, books = [], settings = {} }: { go?: (p: Page) => vo
         {/* Brand */}
         <div>
           <Link to="/" style={{ marginBottom: 16, display: 'inline-block' }}>
-            <img src="/Images/Evercraft Logo 2.png" alt="Evercraft Publications" style={{ width: 105, height: 105, objectFit: "contain" }} />
+            <img 
+              src="/Images/Evercraft Logo 2.webp" 
+              alt="Evercraft Publications" 
+              width={105}
+              height={105}
+              loading="lazy"
+              style={{ width: 105, height: 105, objectFit: "contain" }} 
+            />
           </Link>
           <p style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 20, opacity: 0.9, color: "#E6D5C3" }}>{settings.content_footer_text || "India's new-media publishing platform — building sustainable literary ecosystems that connect authors and readers."}</p>
           <div style={{ display: "flex", gap: 8 }}>
