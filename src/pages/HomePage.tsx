@@ -127,7 +127,11 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
 
     return (
         <div>
-            <SEO title="Home" />
+            <SEO 
+                title="Best Book Publishing House in India"
+                description="EverCraft Publications — India's leading book publishing company. Publish, print, edit & distribute your books on Amazon & Flipkart. Trusted by 500+ authors in Indore, Bhopal & across India."
+                keywords="best book publishing house India, publish book in indore, publish book in bhopal, self publishing India, book printing services, book publisher near me, amazon book publishing, ISBN registration India, academic publishing, book editing services, print on demand India, EverCraft Publications"
+            />
             {/* HERO */}
             <section style={{
                 background: "linear-gradient(135deg, #1f0000 0%, #730000 50%, #1f0000 100%)",

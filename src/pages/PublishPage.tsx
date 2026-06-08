@@ -26,8 +26,10 @@ export function PublishPage({ settings = {} }: { settings?: any }) {
   return (
     <div style={{ minHeight: "100vh" }}>
       <SEO 
-        title="Publish With Us" 
-        description="Publish your book with EverCraft Publications. We offer professional book publishing, editing, and printing services in Indore and Bhopal."
+        title="Publish Your Book – Submit Your Manuscript Today" 
+        description="Publish your book with EverCraft Publications. Professional editing, cover design, ISBN registration, printing & distribution on Amazon & Flipkart. Start your author journey today."
+        keywords="publish my book India, submit manuscript, self publish book India, book publishing services Indore, book publishing Bhopal, manuscript submission, become an author India, ISBN registration, book printing India, publish book on Amazon India"
+        url="https://www.evercraft.co.in/publish"
       />
       {/* HERO */}
       <div style={{ background: "#ffffff", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "40px 24px", textAlign: "center", color: "#730000" }}>

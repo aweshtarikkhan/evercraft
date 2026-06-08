@@ -37,8 +37,10 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
       <SEO 
-        title="Our Services" 
-        description="Explore our comprehensive book publishing services. We offer editing, proofreading, cover design, printing, and global distribution."
+        title="Book Publishing Services – Editing, Printing, Distribution"
+        description="Explore EverCraft's complete book publishing services — manuscript editing, book cover design, ISBN registration, printing, and global distribution on Amazon & Flipkart."
+        keywords="book publishing services India, book editing services, book cover design, ISBN registration India, book printing services, book distribution India, amazon book listing, self publishing services, manuscript editing"
+        url="https://www.evercraft.co.in/services"
       />
       {/* HERO */}
       <div style={{ 

@@ -105,8 +105,10 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF", color: "#2D1B10", position: "relative", padding: "60px 20px 80px", boxSizing: "border-box" }}>
       <SEO 
-        title={`Read ${activeBook.title} Online`} 
-        description={`Read ${activeBook.title} for free online at EverCraft Publications.`}
+        title={`Read ${activeBook.title} Free Online`} 
+        description={`Read ${activeBook.title} by ${activeBook.author} for free online at EverCraft Publications. Free ${activeBook.genre} books available for all readers.`}
+        keywords={`read ${activeBook.title} free, free books online India, ${activeBook.genre} free books, EverCraft free reading`}
+        url={`https://www.evercraft.co.in/read/${activeBook.id}`}
       />
       {/* Subtle floating Close Button */}
       <Link

@@ -49,8 +49,10 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
       <SEO 
-        title="Bookstore" 
-        description="Browse the complete collection of books published by EverCraft Publications. Discover new titles, bestsellers, and upcoming releases across various genres."
+        title="Shop Books Online – Buy Quality Books in India"
+        description="Browse and buy quality books at EverCraft Publications. Academic textbooks, literary fiction, self-help, children's books & more. Free delivery across India."
+        keywords="buy books online India, academic textbooks online, book shop India, EverCraft books, literary books India, children books online, self help books India, buy textbooks online"
+        url="https://www.evercraft.co.in/shop"
       />
       
       {/* HERO */}

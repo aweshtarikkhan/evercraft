@@ -112,8 +112,10 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
   return (
     <div style={{ minHeight: "100vh" }}>
       <SEO 
-        title="About Us" 
-        description="Learn more about EverCraft Publications. Our mission is to discover and amplify unique voices across India, providing professional publishing, editing, and distribution."
+        title="About Us – India's Trusted Book Publishing Company"
+        description="Learn about EverCraft Publications — a leading book publishing house in Bhopal, India. We help aspiring authors turn their ideas into published books."
+        keywords="about EverCraft Publications, book publishing company India, publishing house Bhopal, best publisher Indore, Indian book publisher, self publishing platform India"
+        url="https://www.evercraft.co.in/about"
       />
       
       {/* HERO */}
@@ -161,9 +163,9 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
       />
 
          <div style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h1 style={{ fontSize: "clamp(36px,5vw,56px)", fontWeight: 800, color: "#2D1B10", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
+          <h2 style={{ fontSize: "clamp(36px,5vw,56px)", fontWeight: 800, color: "#2D1B10", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
             <WordReveal text={settings.content_about_hero_title || "About EverCraft *Publications*"} once={true} />
-          </h1>
+          </h2>
           <p style={{ fontSize: "clamp(16px,2vw,20px)", color: "#5C3A21", opacity: 0.9, maxWidth: 800, margin: "0 auto", lineHeight: 1.6 }}>
             {settings.content_about_hero_subtitle || "A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India."}
           </p>

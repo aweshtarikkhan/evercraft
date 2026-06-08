@@ -347,7 +347,8 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
       <SEO 
         title="Shopping Cart" 
-        description="View your shopping cart at EverCraft Publications."
+        description="Review items in your shopping cart at EverCraft Publications. Secure checkout with COD and online payment options."
+        noindex={true}
       />
       <div style={{ background: "#ffffff", padding: "40px 24px", textAlign: "center", color: "#730000", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)" }}>
         <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>

@@ -47,9 +47,38 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
   return (
     <div style={{ minHeight: "100vh", background: "#FAF5EF" }}>
       <SEO 
-        title={book.title} 
-        description={book.description?.substring(0, 160) || `Buy ${book.title} by ${book.author} at EverCraft Publications.`}
+        title={`${book.title} by ${book.author} – Buy Online`}
+        description={book.description?.substring(0, 155) || `Buy ${book.title} by ${book.author} at EverCraft Publications. Available on Amazon, Flipkart & direct delivery across India.`}
+        keywords={`${book.title}, ${book.author}, buy ${book.title} online, ${book.genre} books India, EverCraft Publications books, ${book.language} books online`}
         image={book.coverUrl || book.cover_image}
+        url={`https://www.evercraft.co.in/book/${book.id}`}
+        type="product"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Book",
+          "name": book.title,
+          "author": { "@type": "Person", "name": book.author },
+          "isbn": book.isbn || undefined,
+          "numberOfPages": book.pages || undefined,
+          "inLanguage": book.language || "en",
+          "genre": book.genre,
+          "publisher": { "@type": "Organization", "name": book.publisher || "EverCraft Publications" },
+          "image": book.coverUrl || book.cover_image,
+          "url": `https://www.evercraft.co.in/book/${book.id}`,
+          "description": book.description?.substring(0, 200),
+          "offers": book.price ? {
+            "@type": "Offer",
+            "price": book.price,
+            "priceCurrency": "INR",
+            "availability": book.available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "seller": { "@type": "Organization", "name": "EverCraft Publications" }
+          } : undefined,
+          "aggregateRating": book.rating ? {
+            "@type": "AggregateRating",
+            "ratingValue": book.rating,
+            "reviewCount": book.reviews || 1
+          } : undefined
+        }}
       />
       <div style={{ background: "#FAF5EF", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "12px 24px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", gap: 8, fontSize: 14, color: "#730000" }}>

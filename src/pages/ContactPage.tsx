@@ -26,8 +26,10 @@ export function ContactPage({ settings = {} }: { settings?: any }) {
   return (
     <div style={{ minHeight: "100vh" }}>
       <SEO 
-        title="Contact Us" 
-        description="Get in touch with EverCraft Publications. We are here to answer your queries regarding book publishing, buying books, and other services."
+        title="Contact Us – Get in Touch with EverCraft Publications" 
+        description="Contact EverCraft Publications for book publishing, orders, or queries. Visit us in Bhopal or call +91 90090 36633. We respond within 24 hours."
+        keywords="contact EverCraft Publications, book publisher contact India, publishing house Bhopal contact, book publishing inquiry, EverCraft phone number, EverCraft email, book publisher near me"
+        url="https://www.evercraft.co.in/contact"
       />
       {/* HERO */}
       <div style={{ background: "#ffffff", borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)", padding: "40px 24px", textAlign: "center", color: "#730000" }}>
