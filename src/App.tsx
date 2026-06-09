@@ -848,6 +848,8 @@ export default function App() {
     if(currentUser) fetch(`${API_BASE_URL}/users/logout/${currentUser.id}`, { method: "POST" }).catch(()=>{});
     setCurrentUser(null);
     localStorage.removeItem("evercraft_user");
+    localStorage.removeItem("token");
+    setCart([]);
     sessionStorage.removeItem("evercraft_subscribed_newsletter");
     setUserMenuOpen(false);
     setToast("Logged out successfully");

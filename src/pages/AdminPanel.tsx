@@ -511,6 +511,7 @@ export function AdminPanel({
           <button onClick={() => {
             sessionStorage.removeItem("evercraft_admin_auth");
             localStorage.removeItem("evercraft_user");
+            localStorage.removeItem("token");
             setIsAuthenticated(false);
             window.location.href = "/";
           }} style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: 600 }}>⬅ Logout & Exit</button>

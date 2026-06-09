@@ -115,9 +115,10 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
           body: JSON.stringify({ email, password })
         });
         if(res.ok) {
-           const userData = await res.json();
-           setCurrentUser(userData);
-           localStorage.setItem("evercraft_user", JSON.stringify(userData));
+           const data = await res.json();
+           setCurrentUser(data.user);
+           localStorage.setItem("evercraft_user", JSON.stringify(data.user));
+           localStorage.setItem("token", data.token);
            showToast("Account created successfully!");
            onClose();
         } else {
@@ -207,9 +208,10 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
           body: JSON.stringify({ email, password })
         });
         if(res.ok) {
-           const userData = await res.json();
-           setCurrentUser(userData);
-           localStorage.setItem("evercraft_user", JSON.stringify(userData));
+           const data = await res.json();
+           setCurrentUser(data.user);
+           localStorage.setItem("evercraft_user", JSON.stringify(data.user));
+           localStorage.setItem("token", data.token);
            showToast("Logged in successfully!");
            onClose();
         } else showToast("Invalid email or password!");

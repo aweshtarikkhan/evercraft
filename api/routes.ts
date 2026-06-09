@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { query } from './config/database';
 import { validate } from './middleware/validate';
+import { generateToken, verifyToken, rlsCheck } from './middleware/auth';
 import { sendEmail } from './utils/mailer';
 import {
   DuplicateCheckSchema,
@@ -71,15 +72,16 @@ router.post('/users', validate(UserSignupSchema), async (req: Request, res: Resp
     'INSERT INTO users (name, email, phone, password, status, profile_image) VALUES (?, ?, ?, ?, ?, ?)',
     [name, email, phone, password, 'Logged In', '']
   );
-  
-  return res.json({
+  const userObj = {
     id: result.insertId,
     name,
     email,
     phone,
     status: 'Logged In',
     profile_image: ''
-  });
+  };
+  const token = generateToken({ id: userObj.id, email: userObj.email, role: 'User' });
+  return res.json({ user: userObj, token });
 });
 router.post('/users/login', validate(UserLoginSchema), async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -134,7 +136,8 @@ router.post('/users/login', validate(UserLoginSchema), async (req: Request, res:
         role: adminRole
       };
     }
-    return res.json(user);
+    const token = generateToken({ id: user.id, email: user.email, role: user.role });
+    return res.json({ user, token });
   }
 
   const users = await query('SELECT * FROM users WHERE email=? AND password=?', [email, password]);
@@ -143,7 +146,8 @@ router.post('/users/login', validate(UserLoginSchema), async (req: Request, res:
     const user = users[0];
     await query("UPDATE users SET status='Logged In' WHERE id=?", [user.id]);
     user.status = 'Logged In';
-    return res.json(user);
+    const token = generateToken({ id: user.id, email: user.email, role: user.role || 'User' });
+    return res.json({ user, token });
   }
   
   return res.status(401).json({ detail: 'Invalid credentials' });
@@ -157,7 +161,8 @@ router.post('/users/supabase-login', validate(SupabaseLoginSchema), async (req: 
       const user = existing[0];
       await query("UPDATE users SET status='Logged In' WHERE id=?", [user.id]);
       user.status = 'Logged In';
-      return res.json(user);
+      const token = generateToken({ id: user.id, email: user.email, role: user.role || 'User' });
+      return res.json({ user, token });
     } else {
       const dummyPhone = '';
       const dummyPassword = 'oauth_managed_' + Math.random().toString(36).slice(-8);
@@ -165,14 +170,16 @@ router.post('/users/supabase-login', validate(SupabaseLoginSchema), async (req: 
         'INSERT INTO users (name, email, phone, password, status, profile_image) VALUES (?, ?, ?, ?, ?, ?)',
         [name, email, dummyPhone, dummyPassword, 'Logged In', profile_image || '']
       );
-      return res.json({
+      const userObj = {
         id: result.insertId,
         name,
         email,
         phone: dummyPhone,
         status: 'Logged In',
         profile_image: profile_image || ''
-      });
+      };
+      const token = generateToken({ id: userObj.id, email: userObj.email, role: 'User' });
+      return res.json({ user: userObj, token });
     }
   } catch (err: any) {
     console.error("❌ Supabase OAuth Login Error:", err);
@@ -180,7 +187,7 @@ router.post('/users/supabase-login', validate(SupabaseLoginSchema), async (req: 
   }
 });
 
-router.put('/users/:user_id', validate(UserUpdateSchema), async (req: Request, res: Response) => {
+router.put('/users/:user_id', verifyToken, rlsCheck, validate(UserUpdateSchema), async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   const { name, email, phone, profile_image } = req.body;
   
@@ -193,13 +200,13 @@ router.put('/users/:user_id', validate(UserUpdateSchema), async (req: Request, r
   return res.json(users[0]);
 });
 
-router.post('/users/logout/:user_id', async (req: Request, res: Response) => {
+router.post('/users/logout/:user_id', verifyToken, rlsCheck, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   await query("UPDATE users SET status='Offline' WHERE id=?", [userId]);
   return res.json({ message: 'Logged out' });
 });
 
-router.post('/users/:user_id/password', validate(PasswordChangeSchema), async (req: Request, res: Response) => {
+router.post('/users/:user_id/password', verifyToken, rlsCheck, validate(PasswordChangeSchema), async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   const { new_password } = req.body;
   await query('UPDATE users SET password=? WHERE id=?', [new_password, userId]);
@@ -323,7 +330,8 @@ router.post('/users/verify-otp', async (req: Request, res: Response) => {
       const user = users[0];
       await query("UPDATE users SET status='Logged In' WHERE id=?", [user.id]);
       user.status = 'Logged In';
-      return res.json({ success: true, user });
+      const token = generateToken({ id: user.id, email: user.email, role: user.role || 'User' });
+      return res.json({ success: true, user, token });
     } else {
       return res.json({ success: true, signup_required: true });
     }
@@ -333,7 +341,7 @@ router.post('/users/verify-otp', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/users/:user_id/cart', async (req: Request, res: Response) => {
+router.post('/users/:user_id/cart', verifyToken, rlsCheck, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.user_id);
     const { items } = req.body; // JSON array of items as string
@@ -354,7 +362,7 @@ router.post('/users/:user_id/cart', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/users/:user_id/cart', async (req: Request, res: Response) => {
+router.get('/users/:user_id/cart', verifyToken, rlsCheck, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.user_id);
     if (isNaN(userId)) {
@@ -374,13 +382,13 @@ router.get('/users/:user_id/cart', async (req: Request, res: Response) => {
 
 // ─── ROUTES: ADDRESSES ────────────────────────────────────────────────────
 
-router.get('/users/:user_id/addresses', async (req: Request, res: Response) => {
+router.get('/users/:user_id/addresses', verifyToken, rlsCheck, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   const addresses = await query('SELECT * FROM addresses WHERE user_id=?', [userId]);
   return res.json(addresses || []);
 });
 
-router.post('/users/:user_id/addresses', validate(AddressCreateSchema), async (req: Request, res: Response) => {
+router.post('/users/:user_id/addresses', verifyToken, rlsCheck, validate(AddressCreateSchema), async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   const { type, address, city, pincode } = req.body;
   
@@ -393,15 +401,20 @@ router.post('/users/:user_id/addresses', validate(AddressCreateSchema), async (r
 
 // ─── ROUTES: ORDERS ───────────────────────────────────────────────────────
 
-router.get('/users/:user_id/orders', async (req: Request, res: Response) => {
+router.get('/users/:user_id/orders', verifyToken, rlsCheck, async (req: Request, res: Response) => {
   const userId = parseInt(req.params.user_id);
   const orders = await query('SELECT * FROM orders WHERE user_id=?', [userId]);
   return res.json(orders || []);
 });
 
-router.post('/orders', validate(OrderCreateSchema), async (req: Request, res: Response) => {
+router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Request, res: Response) => {
   try {
     const { user_id, items, shipping_address_id, coupon_code } = req.body;
+    
+    // RLS Check
+    if (req.user!.id !== user_id && !['Admin', 'Master Admin', 'Developer'].includes(req.user!.role || '')) {
+      return res.status(403).json({ detail: 'Forbidden: You cannot create an order for another user.' });
+    }
     
     if (!items || items.length === 0) {
       return res.status(400).json({ detail: 'Cannot create an empty order.' });
@@ -549,7 +562,7 @@ router.post('/orders', validate(OrderCreateSchema), async (req: Request, res: Re
   }
 });
 
-router.get('/orders', async (req: Request, res: Response) => {
+router.get('/orders', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const orders = await query(`
     SELECT o.*, a.address, a.city, a.pincode
     FROM orders o
@@ -559,7 +572,7 @@ router.get('/orders', async (req: Request, res: Response) => {
   return res.json(orders || []);
 });
 
-router.put('/orders/:order_id/status', validate(OrderStatusUpdateSchema), async (req: Request, res: Response) => {
+router.put('/orders/:order_id/status', verifyToken, adminOnly, validate(OrderStatusUpdateSchema), async (req: Request, res: Response) => {
   const orderId = parseInt(req.params.order_id);
   const { status } = req.body;
   await query('UPDATE orders SET status=? WHERE id=?', [status, orderId]);
@@ -568,12 +581,12 @@ router.put('/orders/:order_id/status', validate(OrderStatusUpdateSchema), async 
 
 // ─── ROUTES: COUPONS ──────────────────────────────────────────────────────
 
-router.get('/coupons', async (req: Request, res: Response) => {
+router.get('/coupons', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const coupons = await query('SELECT * FROM coupons ORDER BY id DESC');
   return res.json(coupons || []);
 });
 
-router.post('/coupons', validate(CouponCreateSchema), async (req: Request, res: Response) => {
+router.post('/coupons', verifyToken, adminOnly, validate(CouponCreateSchema), async (req: Request, res: Response) => {
   const { code, discount_percent } = req.body;
   try {
     await query('INSERT INTO coupons (code, discount_percent) VALUES (?, ?)', [code.toUpperCase(), discount_percent]);
@@ -586,7 +599,7 @@ router.post('/coupons', validate(CouponCreateSchema), async (req: Request, res: 
   }
 });
 
-router.delete('/coupons/:coupon_id', async (req: Request, res: Response) => {
+router.delete('/coupons/:coupon_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const couponId = parseInt(req.params.coupon_id);
   await query('DELETE FROM coupons WHERE id = ?', [couponId]);
   return res.json({ message: 'Coupon deleted' });
@@ -613,7 +626,7 @@ router.get('/settings', async (req: Request, res: Response) => {
   return res.json(settingsMap);
 });
 
-router.post('/settings', async (req: Request, res: Response) => {
+router.post('/settings', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const updates = req.body;
   if (typeof updates !== 'object' || updates === null) {
     return res.status(400).json({ error: 'Body must be an object of key-value pairs' });
@@ -632,7 +645,7 @@ router.post('/settings', async (req: Request, res: Response) => {
   return res.json({ message: 'Settings updated' });
 });
 
-router.post('/settings/sync', async (req: Request, res: Response) => {
+router.post('/settings/sync', verifyToken, adminOnly, async (req: Request, res: Response) => {
   try {
     const contentPath = path.join(process.cwd(), 'src', 'content.json');
     if (!fs.existsSync(contentPath)) {
@@ -712,7 +725,7 @@ router.post('/admin/login', validate(AdminLoginSchema), async (req: Request, res
   return res.status(401).json({ detail: 'Invalid credentials' });
 });
 
-router.get('/stats', async (req: Request, res: Response) => {
+router.get('/stats', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const booksCount = await query('SELECT COUNT(*) as c FROM books');
   const usersCount = await query('SELECT COUNT(*) as c FROM users');
   const sessionsCount = await query('SELECT COUNT(*) as c FROM users WHERE status=\'Logged In\'');
@@ -732,7 +745,7 @@ router.get('/stats', async (req: Request, res: Response) => {
   });
 });
 
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/users', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const users = await query('SELECT * FROM users');
   const normalized = (users || []).map((u: any) => ({
     id: u.id,
@@ -746,7 +759,7 @@ router.get('/users', async (req: Request, res: Response) => {
   return res.json(normalized);
 });
 
-router.put('/users/:user_id/role', async (req: Request, res: Response) => {
+router.put('/users/:user_id/role', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const userId = req.params.user_id;
   const { role } = req.body;
   if (!role) return res.status(400).json({ error: 'Role is required' });
@@ -754,7 +767,7 @@ router.put('/users/:user_id/role', async (req: Request, res: Response) => {
   return res.json({ message: 'Role updated' });
 });
 
-router.delete('/users/:user_id', async (req: Request, res: Response) => {
+router.delete('/users/:user_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const userId = req.params.user_id;
   try {
     await query('DELETE FROM cart WHERE user_id = ?', [userId]);
@@ -781,7 +794,7 @@ router.get('/front-stats', async (req: Request, res: Response) => {
   return res.json(stats);
 });
 
-router.post('/front-stats', validate(FrontStatsUpdateSchema), async (req: Request, res: Response) => {
+router.post('/front-stats', verifyToken, adminOnly, validate(FrontStatsUpdateSchema), async (req: Request, res: Response) => {
   try {
     const { happy_readers, cities_reached, sales_platforms } = req.body;
     await query(
@@ -806,14 +819,14 @@ router.post('/cookie-consent', validate(CookieConsentCreateSchema), async (req: 
   return res.json({ message: 'Consent recorded' });
 });
 
-router.get('/cookie-consents', async (req: Request, res: Response) => {
+router.get('/cookie-consents', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const consents = await query('SELECT * FROM cookie_consents ORDER BY id DESC');
   return res.json(consents || []);
 });
 
 // ─── ROUTES: INQUIRIES & NEWSLETTER ───────────────────────────────────────
 
-router.get('/subscribers', async (req: Request, res: Response) => {
+router.get('/subscribers', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const subscribers = await query('SELECT * FROM subscribers');
   const normalized = (subscribers || []).map((s: any) => ({
     e: s.email,
@@ -860,7 +873,7 @@ router.post('/subscribers', validate(SubscriberCreateSchema), async (req: Reques
   }
 });
 
-router.get('/publish-requests', async (req: Request, res: Response) => {
+router.get('/publish-requests', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const reqs = await query('SELECT * FROM publish_reqs ORDER BY id DESC');
   return res.json(reqs || []);
 });
@@ -875,7 +888,7 @@ router.post('/publish-requests', validate(PublishReqCreateSchema), async (req: R
   return res.json({ message: 'Request submitted' });
 });
 
-router.get('/contact-messages', async (req: Request, res: Response) => {
+router.get('/contact-messages', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const msgs = await query('SELECT * FROM contact_msgs ORDER BY id DESC');
   return res.json(msgs || []);
 });
@@ -903,7 +916,7 @@ router.get('/books', async (req: Request, res: Response) => {
   return res.json(formatted);
 });
 
-router.post('/books', validate(BookCreateSchema), async (req: Request, res: Response) => {
+router.post('/books', verifyToken, adminOnly, validate(BookCreateSchema), async (req: Request, res: Response) => {
   const {
     title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
     pages, badge, rating, reviews, available, frontCover, backCover,
@@ -929,7 +942,7 @@ router.post('/books', validate(BookCreateSchema), async (req: Request, res: Resp
   return res.json({ message: 'Book added' });
 });
 
-router.put('/books/:id', validate(BookCreateSchema), async (req: Request, res: Response) => {
+router.put('/books/:id', verifyToken, adminOnly, validate(BookCreateSchema), async (req: Request, res: Response) => {
   const bookId = parseInt(req.params.id);
   const {
     title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
@@ -956,7 +969,7 @@ router.put('/books/:id', validate(BookCreateSchema), async (req: Request, res: R
   return res.json({ message: 'Book updated' });
 });
 
-router.delete('/books/:id', async (req: Request, res: Response) => {
+router.delete('/books/:id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const bookId = parseInt(req.params.id);
   await query('DELETE FROM books WHERE id = ?', [bookId]);
   return res.json({ message: 'Book deleted successfully' });
@@ -974,14 +987,14 @@ router.post('/books/:id/notify', async (req: Request, res: Response) => {
   return res.json({ message: 'Notification subscription successful' });
 });
 
-router.post('/books/hero/:book_id', async (req: Request, res: Response) => {
+router.post('/books/hero/:book_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const bookId = parseInt(req.params.book_id);
   await query('UPDATE books SET is_hero=0');
   await query('UPDATE books SET is_hero=1 WHERE id=?', [bookId]);
   return res.json({ message: 'Hero book updated' });
 });
 
-router.post('/books/bestseller/:book_id', async (req: Request, res: Response) => {
+router.post('/books/bestseller/:book_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const bookId = parseInt(req.params.book_id);
   await query('UPDATE books SET is_bestseller=0');
   await query('UPDATE books SET is_bestseller=1 WHERE id=?', [bookId]);
@@ -1014,7 +1027,7 @@ router.get('/testimonials', async (req: Request, res: Response) => {
   return res.json(testimonials || []);
 });
 
-router.post('/testimonials', async (req: Request, res: Response) => {
+router.post('/testimonials', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const { name, role, text, rating, avatar } = req.body;
   await query(
     'INSERT INTO testimonials (name, role, text, rating, avatar) VALUES (?, ?, ?, ?, ?)',
@@ -1023,7 +1036,7 @@ router.post('/testimonials', async (req: Request, res: Response) => {
   return res.json({ message: 'Testimonial added' });
 });
 
-router.put('/testimonials/:id', async (req: Request, res: Response) => {
+router.put('/testimonials/:id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const id = req.params.id;
   const { name, role, text, rating, avatar } = req.body;
   await query(
@@ -1033,7 +1046,7 @@ router.put('/testimonials/:id', async (req: Request, res: Response) => {
   return res.json({ message: 'Testimonial updated' });
 });
 
-router.delete('/testimonials/:id', async (req: Request, res: Response) => {
+router.delete('/testimonials/:id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const id = req.params.id;
   await query('DELETE FROM testimonials WHERE id=?', [id]);
   return res.json({ message: 'Testimonial deleted' });
