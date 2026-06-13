@@ -116,9 +116,11 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
         });
         if(res.ok) {
            const data = await res.json();
-           if (data.user) {
-             setCurrentUser(data.user);
-             localStorage.setItem("evercraft_user", JSON.stringify(data.user));
+           // Backend returns user data directly, not wrapped in {user: ...}
+           const userData = data.user || data;
+           if (userData && userData.id) {
+             setCurrentUser(userData);
+             localStorage.setItem("evercraft_user", JSON.stringify(userData));
            }
            if (data.token) localStorage.setItem("token", data.token);
            showToast("Account created successfully!");
@@ -211,9 +213,11 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
         });
         if(res.ok) {
            const data = await res.json();
-           if (data.user) {
-             setCurrentUser(data.user);
-             localStorage.setItem("evercraft_user", JSON.stringify(data.user));
+           // Backend returns user data directly, not wrapped in {user: ...}
+           const userData = data.user || data;
+           if (userData && userData.id) {
+             setCurrentUser(userData);
+             localStorage.setItem("evercraft_user", JSON.stringify(userData));
            }
            if (data.token) localStorage.setItem("token", data.token);
            showToast("Logged in successfully!");
