@@ -622,12 +622,15 @@ export default function App() {
   useEffect(() => {
     if (currentUser) {
       fetch(`${API_BASE_URL}/users/${currentUser.id}/cart`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`Cart fetch failed: ${res.status}`);
+          return res.json();
+        })
         .then(data => {
           if (data && data.items) {
             try {
               const dbItems = JSON.parse(data.items);
-              if (dbItems && dbItems.length > 0) {
+              if (Array.isArray(dbItems) && dbItems.length > 0) {
                 setCart(dbItems);
               }
             } catch (e) {
