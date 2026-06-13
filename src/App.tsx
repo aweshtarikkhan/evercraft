@@ -20,6 +20,7 @@ import { FreeReaderPage } from "./pages/FreeReaderPage";
 import { PrivacyPolicyPage, TermsConditionsPage, RefundPolicyPage } from "./pages/Policies";
 import { supabase } from "./utils/supabase";
 import { LoginModal } from "./components/modals/LoginModal";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -1022,7 +1023,11 @@ export default function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-conditions" element={<TermsConditionsPage />} />
           <Route path="/refund-policy" element={<RefundPolicyPage />} />
-          <Route path="/admin" element={<AdminPanel go={go as any} books={books} refreshBooks={refreshAll} refreshTestimonials={fetchTestimonials} frontStats={frontStats} testimonials={testimonials} />} />
+          <Route path="/admin" element={
+            <ErrorBoundary>
+              <AdminPanel go={go as any} books={books} refreshBooks={refreshAll} refreshTestimonials={fetchTestimonials} frontStats={frontStats} testimonials={testimonials} />
+            </ErrorBoundary>
+          } />
         </Routes>
       </main>
 
