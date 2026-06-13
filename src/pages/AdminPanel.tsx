@@ -233,30 +233,33 @@ export function AdminPanel({
   // Fetch Tab Specific Data
   useEffect(() => {
     if (!isAuthenticated) return;
-    fetch(`${API_BASE_URL}/stats`).then(r => r.json()).then(setStats).catch(() => {});
-    if (adminTab === "users") fetch(`${API_BASE_URL}/users`).then(r => r.json()).then(setUsers).catch(() => {});
+    const authHeaders = { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token") || ""}` };
+    
+    fetch(`${API_BASE_URL}/stats`).then(r => r.ok ? r.json() : {}).then(setStats).catch(() => {});
+    
+    if (adminTab === "users") fetch(`${API_BASE_URL}/users`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setUsers).catch(() => {});
     if (adminTab === "orders") {
-      fetch(`${API_BASE_URL}/orders`).then(r => r.json()).then(setOrders).catch(() => {});
-      fetch(`${API_BASE_URL}/coupons`).then(r => r.json()).then(setCoupons).catch(() => {});
+      fetch(`${API_BASE_URL}/orders`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setOrders).catch(() => {});
+      fetch(`${API_BASE_URL}/coupons`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setCoupons).catch(() => {});
     }
     if (adminTab === "books" || adminTab === "dashboard") {
-      fetch(`${API_BASE_URL}/settings`).then(r => r.json()).then(setSettings).catch(() => {});
+      fetch(`${API_BASE_URL}/settings`, { headers: authHeaders }).then(r => r.ok ? r.json() : {}).then(setSettings).catch(() => {});
     }
     if (adminTab === "newsletter") {
-      fetch(`${API_BASE_URL}/subscribers`).then(r => r.json()).then(setSubscribers).catch(() => {});
-      fetch(`${API_BASE_URL}/cookie-consents`).then(r => r.json()).then(setCookieConsents).catch(() => {});
+      fetch(`${API_BASE_URL}/subscribers`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setSubscribers).catch(() => {});
+      fetch(`${API_BASE_URL}/cookie-consents`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setCookieConsents).catch(() => {});
     }
     if (adminTab === "messages") {
-      fetch(`${API_BASE_URL}/publish-requests`).then(r => r.json()).then(setPublishReqs).catch(() => {});
-      fetch(`${API_BASE_URL}/contact-messages`).then(r => r.json()).then(setContactMsgs).catch(() => {});
-      fetch(`${API_BASE_URL}/service-inquiries`).then(r => r.json()).then(setServiceInquiries).catch(() => {});
-      fetch(`${API_BASE_URL}/service-feedbacks`).then(r => r.json()).then(setServiceFeedbacks).catch(() => {});
+      fetch(`${API_BASE_URL}/publish-requests`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setPublishReqs).catch(() => {});
+      fetch(`${API_BASE_URL}/contact-messages`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setContactMsgs).catch(() => {});
+      fetch(`${API_BASE_URL}/service-inquiries`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setServiceInquiries).catch(() => {});
+      fetch(`${API_BASE_URL}/service-feedbacks`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setServiceFeedbacks).catch(() => {});
     }
     if (adminTab === "testimonials") {
       refreshBooks();
     }
     if (adminTab === "team") {
-      fetch(`${API_BASE_URL}/team-members`).then(r => r.json()).then(setTeamMembers).catch(() => {});
+      fetch(`${API_BASE_URL}/team-members`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setTeamMembers).catch(() => {});
     }
   }, [adminTab, isAuthenticated, refreshBooks]);
 
