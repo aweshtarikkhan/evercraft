@@ -9,9 +9,10 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];
+  theme?: "light" | "dark";
 }
 
-export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
+export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, theme = "light" }) => {
   // Generate JSON-LD for structured data
   const jsonLd = {
     "@context": "https://schema.org",
@@ -40,7 +41,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
         </script>
       </Helmet>
       
-      <nav aria-label="Breadcrumb" style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}>
+      <nav aria-label="Breadcrumb" style={{ padding: '16px 0', fontSize: '14px', color: theme === "dark" ? 'rgba(255,255,255,0.7)' : '#666' }}>
         <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           <li>
             <Link to="/" style={{ color: '#D4AF37', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
@@ -49,10 +50,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
           </li>
           {items.map((item, index) => (
             <React.Fragment key={index}>
-              <li style={{ color: '#ccc' }}>/</li>
+              <li style={{ color: theme === "dark" ? 'rgba(255,255,255,0.4)' : '#ccc' }}>/</li>
               <li aria-current={index === items.length - 1 ? 'page' : undefined}>
                 {index === items.length - 1 ? (
-                  <span style={{ color: '#333', fontWeight: 500 }}>{item.title}</span>
+                  <span style={{ color: theme === "dark" ? '#ffffff' : '#333', fontWeight: 600 }}>{item.title}</span>
                 ) : (
                   <Link to={item.path} style={{ color: '#D4AF37', textDecoration: 'none' }} onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'} onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}>
                     {item.title}

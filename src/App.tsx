@@ -890,10 +890,10 @@ export default function App() {
   };
   const NAV_ITEMS = [
     { label: "Home", path: "/" },
-    { label: "About", path: "/about" },
-    { label: "Services", path: "/services" },
+    { label: "About Us", path: "/about" },
+    { label: "Our Services", path: "/services" },
+    { label: "Contact Us", path: "/contact" },
     { label: "Publish With Us", path: "/publish" },
-    { label: "Contact", path: "/contact" },
     { label: "Shop", path: "/shop" },
   ];
 

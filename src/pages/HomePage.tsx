@@ -62,19 +62,19 @@ const bookSlideVariants = {
 };
 
 const HERO_TAGLINES = [
-  {
-    title: "Where Stories Come _Alive_.",
-    subtitle: "India's new-media publishing platform — bridging authors and readers across the nation. From raw manuscript to bookshelf masterpiece."
-  },
-  {
-    title: "Discover New _Titles_",
-    subtitle: "Explore our latest collection of spiritually enriching and thought-provoking books."
-  },
-  {
-    title: "Publish Your _Masterpiece_",
-    subtitle: "End-to-end publishing services from manuscript to marketplace — Amazon, Flipkart & ONDC"
-  }
-];
+    { 
+      title: "Crafting Every Word Into A *Masterpiece*", 
+      subtitle: "India's new-media publishing platform — bridging authors and readers across the nation. From raw manuscript to bookshelf masterpiece." 
+    },
+    { 
+      title: "Discover *Stories* That Resonate With The Soul", 
+      subtitle: "Explore books that inspire, enlighten, and transform." 
+    },
+    { 
+      title: "Your Trusted Book *Publishing* Partner", 
+      subtitle: "End-to-end Publishing Services from manuscript to marketplace — Amazon, Flipkart & ONDC" 
+    }
+  ];
 
 export function HomePage({ go, addToCart, openBook, books, frontStats, testimonials }: { go: (p: Page | string) => void; addToCart: (b: Book) => void; openBook: (b: Book) => void; books: Book[]; frontStats: any; testimonials: any[] }) {
     const { settings } = useSettings();
@@ -155,7 +155,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                     >
                         <motion.div 
                             variants={fadeInUp}
-                            style={{ display: "inline-flex", alignItems: "center", border: "1px solid rgba(212, 175, 55, 0.4)", borderRadius: 100, padding: "6px 16px", marginBottom: 24, background: "rgba(212, 175, 55, 0.05)" }}
+                            style={{ display: "none" }} // Hidden per user request
                         >
                             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#D4AF37", display: "inline-block", marginRight: 8 }} />
                             <span style={{ color: "#FAF5EF", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>New-Media Publishing Platform</span>
@@ -536,7 +536,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                     <>
                                         <span className="section-badge" style={{ textAlign: "left", marginBottom: 12 }}>Featured Release</span>
                                         <h2 className="section-title" style={{ color: "#730000", marginBottom: 20, textAlign: "left", fontSize: "clamp(28px, 4.5vw, 44px)" }}>
-                                            <WordReveal text="Our best-selling book, *unveiled* soon." once={true} />
+                                            <WordReveal text="Our best-selling book, *unveiled* soon" once={true} />
                                         </h2>
                                         <p style={{ color: "#730000", opacity: 0.85, fontSize: 15, lineHeight: 1.8, marginBottom: 28, maxWidth: 500 }}>
                                             Stay tuned — our debut bestseller is in final production. A story crafted with care, printed with intention, and ready to find its readers.
@@ -639,7 +639,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                         <div>
                             <span className="section-badge" style={{ textAlign: "left", display: "block" }}>What We Offer</span>
                             <h2 className="section-title" style={{ textAlign: "left", margin: 0, color: "#730000" }}>
-                                <WordReveal text="End-to-end *publishing* services." once={true} />
+                                <WordReveal text="End-to-end *Publishing* Services" once={true} />
                             </h2>
                         </div>
                         <button
@@ -733,8 +733,8 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                         variants={fadeInUp}
                         style={{ textAlign: "center", marginBottom: 56 }}
                     >
-                        <span className="section-badge" style={{ color: "#D4AF37" }}>Author & Reader Stories</span>
-                        <h2 className="section-title" style={{ color: "#ffffff", marginTop: 4 }}><WordReveal text="What they _say_." wordClassName="text-white" /></h2>
+                        <span className="section-badge" style={{ color: "#D4AF37" }}>Author & Readers Stories</span>
+                        <h2 className="section-title" style={{ color: "#ffffff", marginTop: 4 }}><WordReveal text="What they _say_" wordClassName="text-white" /></h2>
                     </motion.div>
 
                     <div 

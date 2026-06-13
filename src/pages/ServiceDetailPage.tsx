@@ -115,7 +115,9 @@ export function ServiceDetailPage() {
         boxSizing: "border-box"
       }}>
         <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
-          <Breadcrumbs items={[
+          <Breadcrumbs 
+            theme="dark"
+            items={[
             { title: 'Services', path: '/services' },
             { title: service.title, path: `/services/${service.slug}` }
           ]} />

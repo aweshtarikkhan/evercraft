@@ -213,9 +213,12 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
         });
         if(res.ok) {
            const data = await res.json();
-           // Backend returns user data directly, not wrapped in {user: ...}
            const userData = data.user || data;
-           if (userData && userData.id) {
+           if (userData && (userData.id || userData.email)) {
+             setCurrentUser(userData);
+             localStorage.setItem("evercraft_user", JSON.stringify(userData));
+           } else {
+             // Fallback if structure is unexpected
              setCurrentUser(userData);
              localStorage.setItem("evercraft_user", JSON.stringify(userData));
            }

@@ -11,7 +11,7 @@ export function Stars({ rating, size = 16 }: { rating: number; size?: number }) 
 }
 
 export function Disc({ pct }: { pct: number }) {
-  return <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20 }}>{pct}% OFF</span>;
+  return <div style={{ background: "#fef2f2", color: "#dc2626", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20 }}>{pct}% OFF</div>;
 }
 
 export function BookCoverSVG({ src, width = 160, height = 224, badge }: { src?: string; width?: number; height?: number; badge?: string }) {

@@ -65,9 +65,7 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
           transition={{ duration: 0.8 }}
           style={{ width: "100%" }}
         >
-          <div style={{ display: "inline-flex", alignItems: "center", border: "1px solid rgba(115, 0, 0, 0.25)", borderRadius: 100, padding: "6px 16px", marginBottom: 20, background: "rgba(115, 0, 0, 0.05)" }}>
-            <span style={{ color: "#730000", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>Publishing Partner</span>
-          </div>
+
           <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginTop: 10, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
             <WordReveal text={settings.content_services_hero_title || "Our *Services*"} once={true} />
           </h1>

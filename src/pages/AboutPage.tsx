@@ -122,20 +122,31 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
       <div style={{ 
         background: "#ffffff", 
         borderBottom: "1.5px solid rgba(115, 0, 0, 0.15)",
-        minHeight: "45vh", 
         display: "flex",
         flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center",
-        padding: "40px 24px", 
+        padding: "40px 24px 60px", 
         textAlign: "center", 
         color: "#730000", 
         position: "relative", 
         overflow: "hidden" 
       }}>
-        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "20px" }}>
+        <div style={{ width: "100%", maxWidth: "1200px", display: "flex", justifyContent: "flex-start", marginBottom: "40px" }}>
           <Breadcrumbs items={[{ title: 'About Us', path: '/about' }]} />
         </div>
+        
+        {/* About Evercraft Publications Section shifted to top */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center", marginBottom: 60 }}>
+          <h1 style={{ fontSize: "clamp(36px,5vw,56px)", fontWeight: 800, color: "#2D1B10", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
+            <WordReveal text={settings.content_about_hero_title || "About EverCraft *Publications*"} once={true} />
+          </h1>
+          <p style={{ fontSize: "clamp(16px,2vw,20px)", color: "#5C3A21", opacity: 0.9, maxWidth: 800, margin: "0 auto", lineHeight: 1.6 }}>
+            {settings.content_about_hero_subtitle || "A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India."}
+          </p>
+        </div>
+
+        {/* Our Story Section without "Why Choose Evercraft?" heading */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,9 +156,6 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
           <div style={{ display: "inline-flex", alignItems: "center", border: "1.5px solid rgba(115, 0, 0, 0.2)", borderRadius: 100, padding: "6px 16px", marginBottom: 20 }}>
             <span style={{ color: "#730000", fontSize: 11, fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase" }}>Our Story</span>
           </div>
-          <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginTop: 10, marginBottom: 16, color: "#730000", fontFamily: "'Playfair Display', Georgia, serif" }}>
-            <WordReveal text={settings.content_home_about_title || "Why Choose Evercraft?"} once={true} />
-          </h1>
           <p style={{ color: "#5C3A21", opacity: 0.9, fontSize: 16, maxWidth: 560, margin: "0 auto", lineHeight: 1.7 }}>
             {settings.content_home_about_text || "We believe every story deserves to be heard. Our team of expert editors, designers, and marketers work closely with authors to ensure their books reach the right audience."}
           </p>
@@ -161,15 +169,6 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
         bgColor="#D4AF37" 
         textColor="#550000" 
       />
-
-         <div style={{ padding: "80px 24px", maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontSize: "clamp(36px,5vw,56px)", fontWeight: 800, color: "#2D1B10", marginBottom: 24, fontFamily: "'Playfair Display', Georgia, serif" }}>
-            <WordReveal text={settings.content_about_hero_title || "About EverCraft *Publications*"} once={true} />
-          </h2>
-          <p style={{ fontSize: "clamp(16px,2vw,20px)", color: "#5C3A21", opacity: 0.9, maxWidth: 800, margin: "0 auto", lineHeight: 1.6 }}>
-            {settings.content_about_hero_subtitle || "A new-media publishing platform building sustainable literary ecosystems that connect authors and readers across India."}
-          </p>
-        </div>
 
         {/* Mission / Vision Section */}
         <div style={{ background: "#ffffff", padding: "80px 24px", borderTop: "1px solid rgba(115, 0, 0, 0.1)", borderBottom: "1px solid rgba(115, 0, 0, 0.1)" }}>

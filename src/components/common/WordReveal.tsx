@@ -83,7 +83,7 @@ export function WordReveal({
           >
             <motion.span
               className={`${wordClassName} ${isGoldItalic ? "text-gold italic font-serif" : isRegularItalic ? "italic font-serif" : ""}`}
-              style={{ display: "inline-block" }}
+              style={{ display: "inline-block", paddingRight: (isGoldItalic || isRegularItalic) ? "0.15em" : "0" }}
               variants={wordVariants}
             >
               {displayWord}
