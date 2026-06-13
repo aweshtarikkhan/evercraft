@@ -567,16 +567,25 @@ function BookPageWrapper({ books, addToCart, go }: { books: Book[], addToCart: (
 export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem("evercraft_cart");
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem("evercraft_cart");
+      if (saved && saved !== "undefined" && saved !== "null") return JSON.parse(saved);
+    } catch (e) { localStorage.removeItem("evercraft_cart"); }
+    return [];
   });
   const [selectedBook, setSelectedBook] = useState<Book | null>(() => {
-    const saved = sessionStorage.getItem("evercraft_selectedBook");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = sessionStorage.getItem("evercraft_selectedBook");
+      if (saved && saved !== "undefined" && saved !== "null") return JSON.parse(saved);
+    } catch (e) { sessionStorage.removeItem("evercraft_selectedBook"); }
+    return null;
   });
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem("evercraft_user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("evercraft_user");
+      if (saved && saved !== "undefined" && saved !== "null") return JSON.parse(saved);
+    } catch (e) { localStorage.removeItem("evercraft_user"); }
+    return null;
   });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -719,8 +728,10 @@ export default function App() {
           });
           if (response.ok) {
             const userData = await response.json();
-            setCurrentUser(userData);
-            localStorage.setItem("evercraft_user", JSON.stringify(userData));
+            if (userData && typeof userData === 'object' && userData.id) {
+              setCurrentUser(userData);
+              localStorage.setItem("evercraft_user", JSON.stringify(userData));
+            }
             setToast("Logged in successfully!");
             window.history.replaceState({}, document.title, window.location.pathname);
           } else {
