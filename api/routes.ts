@@ -1,7 +1,7 @@
-import { Router, Request, Response } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { query } from './config/database';
 import { validate } from './middleware/validate';
-import { generateToken, verifyToken, rlsCheck } from './middleware/auth';
+import { generateToken, verifyToken, rlsCheck, adminOnly } from './middleware/auth';
 import { sendEmail } from './utils/mailer';
 import {
   DuplicateCheckSchema,
@@ -23,7 +23,10 @@ import {
   PublishReqCreateSchema,
   ContactMsgCreateSchema,
   BookCreateSchema,
-  SupabaseLoginSchema
+  SupabaseLoginSchema,
+  ServiceInquiryCreateSchema,
+  ServiceFeedbackCreateSchema,
+  TeamMemberCreateSchema
 } from './schemas';
 
 const router = Router();
@@ -1128,6 +1131,203 @@ router.delete('/team-members/:member_id', verifyToken, adminOnly, async (req: Re
   const memberId = parseInt(req.params.member_id);
   await query("DELETE FROM team_members WHERE id=?", [memberId]);
   return res.json({ message: "Team member deleted" });
+});
+
+// ─── ROUTES: PAYU PAYMENT GATEWAY ──────────────────────────────────────────
+import crypto from 'crypto';
+
+router.post('/payment/initiate', async (req: Request, res: Response) => {
+  try {
+    const { amount, productinfo, firstname, email, phone, user_id, items, shipping_address_id, coupon_code, payment_method } = req.body;
+
+    const PAYU_KEY = process.env.PAYU_MERCHANT_KEY;
+    const PAYU_SALT = process.env.PAYU_MERCHANT_SALT;
+    const PAYU_BASE_URL = process.env.PAYU_BASE_URL || 'https://secure.payu.in';
+
+    if (!PAYU_KEY || !PAYU_SALT) {
+      return res.status(500).json({ detail: 'PayU credentials not configured on server.' });
+    }
+
+    // Generate unique transaction ID
+    const txnid = `EC${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+    // Store order data temporarily for the success callback
+    const orderData = JSON.stringify({ user_id, items, shipping_address_id, coupon_code, payment_method: 'Online' });
+
+    // Store pending transaction in DB
+    try {
+      await query(`CREATE TABLE IF NOT EXISTS payment_transactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        txnid VARCHAR(100) UNIQUE,
+        amount FLOAT,
+        status VARCHAR(50) DEFAULT 'pending',
+        order_data TEXT,
+        payu_response TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )`);
+    } catch(e) {}
+
+    await query('INSERT INTO payment_transactions (txnid, amount, status, order_data) VALUES (?, ?, ?, ?)',
+      [txnid, amount, 'pending', orderData]);
+
+    // Build PayU hash
+    // Hash formula: sha512(key|txnid|amount|productinfo|firstname|email|||||||||||salt)
+    const amountStr = parseFloat(amount).toFixed(2);
+    const hashString = `${PAYU_KEY}|${txnid}|${amountStr}|${productinfo}|${firstname}|${email}|||||||||||${PAYU_SALT}`;
+    const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+    // Determine the base URL for callbacks
+    const siteUrl = process.env.SITE_URL || req.headers.origin || `${req.protocol}://${req.get('host')}`;
+    const apiPrefix = '/api';
+
+    return res.json({
+      payu_base_url: `${PAYU_BASE_URL}/_payment`,
+      key: PAYU_KEY,
+      txnid,
+      amount: amountStr,
+      productinfo,
+      firstname,
+      email,
+      phone: phone || '',
+      hash,
+      surl: `${siteUrl}${apiPrefix}/payment/success`,
+      furl: `${siteUrl}${apiPrefix}/payment/failure`,
+    });
+  } catch (error: any) {
+    console.error('PayU initiate error:', error);
+    return res.status(500).json({ detail: error.message || 'Payment initiation failed' });
+  }
+});
+
+// PayU Success Callback (POST - receives form-encoded data from PayU)
+router.post('/payment/success', express.urlencoded({ extended: true }), async (req: Request, res: Response) => {
+  try {
+    const { txnid, mihpayid, status, hash: receivedHash, amount, productinfo, firstname, email } = req.body;
+
+    const PAYU_KEY = process.env.PAYU_MERCHANT_KEY;
+    const PAYU_SALT = process.env.PAYU_MERCHANT_SALT;
+
+    if (!PAYU_KEY || !PAYU_SALT) {
+      return res.redirect('/?payment=error&msg=config');
+    }
+
+    // Verify reverse hash
+    // Reverse hash: sha512(salt|status|||||||||||email|firstname|productinfo|amount|txnid|key)
+    const reverseHashString = `${PAYU_SALT}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${PAYU_KEY}`;
+    const calculatedHash = crypto.createHash('sha512').update(reverseHashString).digest('hex');
+
+    if (calculatedHash !== receivedHash) {
+      console.error('PayU hash mismatch! Possible tampering.');
+      await query('UPDATE payment_transactions SET status=?, payu_response=? WHERE txnid=?',
+        ['hash_mismatch', JSON.stringify(req.body), txnid]);
+      return res.redirect('/?payment=failed&msg=hash_mismatch');
+    }
+
+    // Retrieve stored order data
+    const txns = await query('SELECT * FROM payment_transactions WHERE txnid=?', [txnid]);
+    if (!txns || txns.length === 0) {
+      return res.redirect('/?payment=failed&msg=txn_not_found');
+    }
+
+    const txn = txns[0];
+    const orderData = JSON.parse(txn.order_data);
+
+    // Update transaction status
+    await query('UPDATE payment_transactions SET status=?, payu_response=? WHERE txnid=?',
+      ['success', JSON.stringify(req.body), txnid]);
+
+    if (status === 'success') {
+      // Create the actual order
+      const dateStr = getTodayDateString();
+      const { user_id, items, shipping_address_id, coupon_code } = orderData;
+
+      // Calculate totals (same logic as POST /orders)
+      let subtotal = 0;
+      for (const item of items) {
+        subtotal += item.price * item.qty;
+      }
+
+      let discount_amount = 0;
+      if (coupon_code) {
+        const coupons = await query('SELECT * FROM coupons WHERE code = ?', [coupon_code.toUpperCase()]);
+        if (coupons.length > 0) {
+          const coupon = coupons[0];
+          const d_type = coupon.discount_type || 'percent';
+          const d_value = coupon.discount_value || coupon.discount_percent || 0;
+          if (d_type === 'percent') {
+            discount_amount = subtotal * (d_value / 100);
+          } else if (d_type === 'fixed') {
+            discount_amount = d_value;
+          }
+        }
+      }
+
+      const settingsRows = await query('SELECT * FROM settings');
+      const settingsDict: Record<string, string> = {};
+      for (const s of settingsRows) { settingsDict[s.s_key] = s.s_value; }
+      const gstPercent = parseFloat(settingsDict.gst_percent || '0');
+      const shippingCost = parseFloat(settingsDict.shipping_cost || '0');
+      const afterDiscount = subtotal - discount_amount;
+      const gstAmount = afterDiscount * (gstPercent / 100);
+      const finalTotal = afterDiscount + gstAmount + shippingCost;
+
+      const result = await query(
+        `INSERT INTO orders (user_id, items, total, date, status, payment_method, shipping_address_id, coupon_code, discount_amount, gst_amount, shipping_cost)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, JSON.stringify(items), finalTotal, dateStr, 'Order Placed', 'Online (PayU)', shipping_address_id, coupon_code || null, discount_amount, gstAmount, shippingCost]
+      );
+
+      // Deduct stock
+      for (const item of items) {
+        await query('UPDATE books SET stock = GREATEST(0, stock - ?) WHERE id = ?', [item.qty, item.id]);
+      }
+
+      return res.redirect('/?payment=success&order_id=' + result.insertId);
+    } else {
+      return res.redirect('/?payment=failed&status=' + status);
+    }
+  } catch (error: any) {
+    console.error('PayU success callback error:', error);
+    return res.redirect('/?payment=error&msg=' + encodeURIComponent(error.message || 'unknown'));
+  }
+});
+
+// PayU Failure Callback
+router.post('/payment/failure', express.urlencoded({ extended: true }), async (req: Request, res: Response) => {
+  try {
+    const { txnid, status } = req.body;
+
+    await query('UPDATE payment_transactions SET status=?, payu_response=? WHERE txnid=?',
+      ['failed', JSON.stringify(req.body), txnid]);
+
+    // Also create a cancelled order entry for tracking
+    const txns = await query('SELECT * FROM payment_transactions WHERE txnid=?', [txnid]);
+    if (txns && txns.length > 0) {
+      const txn = txns[0];
+      const orderData = JSON.parse(txn.order_data);
+      const dateStr = getTodayDateString();
+
+      await query(
+        `INSERT INTO orders (user_id, items, total, date, status, payment_method, shipping_address_id, coupon_code)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [orderData.user_id, JSON.stringify(orderData.items), txn.amount, dateStr, 'Cancelled', 'Online (PayU)', orderData.shipping_address_id, orderData.coupon_code || null]
+      );
+    }
+
+    return res.redirect('/?payment=cancelled');
+  } catch (error: any) {
+    console.error('PayU failure callback error:', error);
+    return res.redirect('/?payment=error');
+  }
+});
+
+// Check payment status by txnid
+router.get('/payment/status/:txnid', async (req: Request, res: Response) => {
+  const txns = await query('SELECT * FROM payment_transactions WHERE txnid=?', [req.params.txnid]);
+  if (txns && txns.length > 0) {
+    return res.json({ status: txns[0].status, txnid: txns[0].txnid });
+  }
+  return res.status(404).json({ detail: 'Transaction not found' });
 });
 
 export default router;

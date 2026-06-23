@@ -473,9 +473,9 @@ export async function initDb() {
         }
       }
 
-    // 4. One-time title updates for specific capitalization issues
-    await query("UPDATE books SET title = 'Kya Sikhata Hai Sundarkand' WHERE title = 'kya sikhata hai sundarkand'");
-    await query("UPDATE books SET title = 'A Handbook on Non-Performing Assets' WHERE title = 'A handbook on non performing assets'");
+    // 4. One-time title updates for specific capitalization issues (case-insensitive match)
+    await query("UPDATE books SET title = 'Kya Sikhata Hai Sundarkand' WHERE LOWER(title) LIKE '%kya sikhata%sundarkand%'");
+    await query("UPDATE books SET title = 'A Handbook on Non-Performing Assets' WHERE LOWER(title) LIKE '%handbook%non%performing%assets%'");
 
     console.log("✅ MySQL Database tables initialized!");
   } catch (error) {

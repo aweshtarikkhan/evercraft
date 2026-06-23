@@ -613,6 +613,31 @@ export default function App() {
   const topRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
+  // Handle PayU Redirects
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const paymentStatus = searchParams.get('payment');
+    
+    if (paymentStatus) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      
+      if (paymentStatus === 'success') {
+        showToast("🎉 Payment Successful! Your order has been placed.");
+        setCart([]);
+        localStorage.removeItem('evercraft_cart');
+        setDashboardTab('Orders');
+        setDashboardOpen(true);
+      } else if (paymentStatus === 'cancelled') {
+        showToast("⚠️ Payment Cancelled. Your order was not completed.");
+      } else if (paymentStatus === 'failed') {
+        const msg = searchParams.get('msg') || searchParams.get('status');
+        showToast(`❌ Payment Failed. ${msg ? '(' + msg + ')' : 'Please try again.'}`);
+      } else if (paymentStatus === 'error') {
+        showToast("❌ Payment Error. Something went wrong during processing.");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem("evercraft_cart", JSON.stringify(cart));

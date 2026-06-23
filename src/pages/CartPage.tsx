@@ -23,6 +23,7 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
   const [newAddr, setNewAddr] = useState({ type: "Home", address: "", city: "", pincode: "" });
   const [coupon, setCoupon] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [couponInfo, setCouponInfo] = useState<{type: string; value: number} | null>(null);
   const [settings, setSettings] = useState({ gst_percent: '0', shipping_cost: '0' });
   const [paymentMethod, setPaymentMethod] = useState<'online' | 'cod'>('online');
 
@@ -93,9 +94,11 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
         }
 
         setDiscount(newDiscount);
+        setCouponInfo({ type: d_type, value: d_value });
         showToast(`✅ Coupon Applied! You saved ₹${newDiscount.toFixed(2)}.`);
       } else {
         setDiscount(0);
+        setCouponInfo(null);
         const err = await res.json();
         showToast(`❌ ${err.detail || "Invalid coupon code."}`);
       }
@@ -274,7 +277,7 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 14, color: '#2D1B10' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Total MRP</span><span>₹{totalMRP.toFixed(2)}</span></div>
               {bookDiscount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}><span>Book Discount</span><span>- ₹{bookDiscount.toFixed(2)}</span></div>}
-              {discount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}><span>Coupon Discount</span><span>- ₹{discount.toFixed(2)}</span></div>}
+              {discount > 0 && <div style={{ display: 'flex', justifyContent: 'space-between', color: '#16a34a' }}><span>Coupon Discount {couponInfo ? (couponInfo.type === 'percent' ? `(-${couponInfo.value}%)` : `(-₹${couponInfo.value})`) : ''}</span><span>- ₹{discount.toFixed(2)}</span></div>}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>GST ({settings.gst_percent}%)</span><span>+ ₹{gstAmount.toFixed(2)}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Shipping</span><span>{shippingCost > 0 ? `+ ₹${shippingCost.toFixed(2)}` : <span style={{ color: '#16a34a', fontWeight: 600 }}>FREE</span>}</span></div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 18, fontWeight: 800, color: '#730000', paddingTop: 10, marginTop: 4, borderTop: '1px solid #f3f4f6' }}>
@@ -469,43 +472,92 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
               </div>
             </div>
 
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#730000", marginBottom: 8 }}>Select Payment Mode</label>
-              <select style={{ width: "100%", padding: "12px", borderRadius: 8, border: "1.5px solid rgba(115, 0, 0, 0.2)", background: "#ffffff", color: "#2D1B10", fontSize: 14, fontWeight: 600 }}>
-                <option>💳 Credit / Debit Card</option>
-                <option>📱 UPI (GPay, PhonePe, Paytm)</option>
-                <option>🏦 Net Banking</option>
-              </select>
-            </div>
-
             <div style={{ background: "#ffffff", border: "1.5px solid rgba(115, 0, 0, 0.1)", padding: 16, borderRadius: 12, marginBottom: 24, fontSize: 13, color: "#5C3A21", lineHeight: 1.6 }}>
               <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8, color: "#aa7c11", fontWeight: 700 }}>
-                <span>🛡️</span> <span>Secure Sandbox Simulator</span>
+                <span>🛡️</span> <span>Secure Payment via PayU</span>
               </div>
-              <span>This is a secure mock sandbox payment gateway simulating checkout success or cancel/exit behaviors. No real money will be charged.</span>
+              <span>You will be redirected to PayU's secure payment page to complete your transaction using UPI, Credit/Debit Card, or Net Banking.</span>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <button 
                 onClick={async () => {
-                  setShowPaymentGateway(false);
-                  await handlePlaceOrder("Order Placed");
+                  setLoading(true);
+                  try {
+                    const productInfo = validCart.map(c => c.title).join(', ').substring(0, 100);
+                    const res = await fetch(`${API_BASE_URL}/payment/initiate`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        amount: finalTotal.toFixed(2),
+                        productinfo: productInfo || 'Book Purchase',
+                        firstname: currentUser?.name || 'Customer',
+                        email: currentUser?.email || '',
+                        phone: currentUser?.phone || '',
+                        user_id: currentUser?.id,
+                        items: validCart.map(c => ({ id: c.id, qty: c.qty, title: c.title, price: c.price })),
+                        shipping_address_id: selectedAddressId,
+                        coupon_code: discount > 0 ? coupon.toUpperCase() : null,
+                      })
+                    });
+
+                    if (!res.ok) {
+                      const err = await res.json();
+                      showToast(`❌ ${err.detail || 'Payment initiation failed.'}`);
+                      setLoading(false);
+                      return;
+                    }
+
+                    const payuData = await res.json();
+
+                    // Create and auto-submit form to PayU
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = payuData.payu_base_url;
+
+                    const fields: Record<string, string> = {
+                      key: payuData.key,
+                      txnid: payuData.txnid,
+                      amount: payuData.amount,
+                      productinfo: payuData.productinfo,
+                      firstname: payuData.firstname,
+                      email: payuData.email,
+                      phone: payuData.phone,
+                      surl: payuData.surl,
+                      furl: payuData.furl,
+                      hash: payuData.hash,
+                    };
+
+                    for (const [key, value] of Object.entries(fields)) {
+                      const input = document.createElement('input');
+                      input.type = 'hidden';
+                      input.name = key;
+                      input.value = value;
+                      form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                  } catch (err) {
+                    showToast("❌ Error connecting to payment gateway.");
+                    setLoading(false);
+                  }
                 }}
                 disabled={loading}
                 className="btn-primary" 
                 style={{ width: "100%", padding: "14px", fontSize: 15 }}
               >
-                {loading ? "Simulating Success... ⏳" : "Simulate Successful Payment (Pay Now) ✅"}
+                {loading ? "Redirecting to PayU... ⏳" : `Pay ₹${finalTotal.toFixed(2)} via PayU 🔐`}
               </button>
               <button 
-                onClick={async () => {
+                onClick={() => {
                   setShowPaymentGateway(false);
-                  await handlePlaceOrder("Cancelled");
+                  setShowOrderSummary(true);
                 }}
                 disabled={loading}
                 style={{ width: "100%", padding: "14px", background: "none", border: "2px solid #730000", color: "#730000", borderRadius: 12, fontWeight: 700, cursor: "pointer", fontSize: 14 }}
               >
-                {loading ? "Simulating Exit... ⏳" : "Cancel / Exit Payment Gateway ❌"}
+                ← Back to Order Summary
               </button>
             </div>
           </div>
