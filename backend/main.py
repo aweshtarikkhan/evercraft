@@ -117,6 +117,11 @@ def init_db():
             cursor.execute("ALTER TABLE orders ADD COLUMN shipping_cost FLOAT AFTER gst_amount")
         except Error:
             pass
+        try:
+            cursor.execute("ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Online' AFTER status")
+        except Error:
+            pass
+
         cursor.execute("CREATE TABLE IF NOT EXISTS front_stats (id INT PRIMARY KEY, books_published VARCHAR(50), happy_readers VARCHAR(50), cities_reached VARCHAR(50), sales_platforms VARCHAR(50))")
         
         # Agar purani front_stats table hai jisme books_published nahi tha, toh use automatically add karein
@@ -339,6 +344,7 @@ class OrderCreate(BaseModel):
     shipping_address_id: int
     coupon_code: Optional[str] = None
     status: str = "Order Placed"
+    payment_method: str = "Online"
 
 class SettingsUpdate(BaseModel):
     gst_percent: Optional[str] = None
@@ -543,8 +549,8 @@ def create_order(order: OrderCreate):
         # Retrieve user status choice, default to Order Placed
         ord_status = order.status if order.status else "Order Placed"
 
-        query_db("INSERT INTO orders (user_id, user_name, shipping_address_id, items, total, coupon_code, discount_amount, gst_amount, shipping_cost, `date`, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                 (order.user_id, user_name, order.shipping_address_id, items_json_string, final_total, order.coupon_code, discount_amount, gst_amount, shipping_cost, date_str, ord_status), commit=True)
+        query_db("INSERT INTO orders (user_id, user_name, shipping_address_id, items, total, coupon_code, discount_amount, gst_amount, shipping_cost, `date`, status, payment_method) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                 (order.user_id, user_name, order.shipping_address_id, items_json_string, final_total, order.coupon_code, discount_amount, gst_amount, shipping_cost, date_str, ord_status, order.payment_method), commit=True)
         return {"message": "Order created"}
     except Exception as e:
         print("❌ Order Error:", e)

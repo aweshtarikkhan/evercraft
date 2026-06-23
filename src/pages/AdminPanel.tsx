@@ -185,7 +185,7 @@ export function AdminPanel({
   >([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [coupons, setCoupons] = useState<any[]>([]);
-  const [newCoupon, setNewCoupon] = useState({ code: "", discount_percent: "" });
+  const [newCoupon, setNewCoupon] = useState({ code: "", discount_type: "percent", discount_value: "", min_order_value: "0" });
   const [serviceInquiries, setServiceInquiries] = useState<any[]>([]);
   const [serviceFeedbacks, setServiceFeedbacks] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>({
@@ -283,19 +283,21 @@ export function AdminPanel({
 
   const addCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCoupon.code || !newCoupon.discount_percent) return;
+    if (!newCoupon.code || !newCoupon.discount_value) return;
     try {
       const res = await fetch(`${API_BASE_URL}/coupons`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({
           code: newCoupon.code,
-          discount_percent: parseInt(newCoupon.discount_percent)
+          discount_type: newCoupon.discount_type,
+          discount_value: parseFloat(newCoupon.discount_value),
+          min_order_value: parseFloat(newCoupon.min_order_value) || 0
         })
       });
       if (res.ok) {
-        setNewCoupon({ code: "", discount_percent: "" });
-        fetch(`${API_BASE_URL}/coupons`).then(r => r.json()).then(setCoupons);
+        setNewCoupon({ code: "", discount_type: "percent", discount_value: "", min_order_value: "0" });
+        fetch(`${API_BASE_URL}/coupons`, { headers: authHeaders }).then(r => r.json()).then(setCoupons);
         alert("Coupon added successfully!");
       } else {
         const err = await res.json();
@@ -1018,7 +1020,14 @@ export function AdminPanel({
                   <form onSubmit={addCoupon} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <h4 style={{ fontWeight: 600, color: "#2D1B10" }}>Add New Coupon</h4>
                     <input required value={newCoupon.code} onChange={e => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })} placeholder="Coupon Code (e.g., NEWYEAR20)" style={adminInputStyle} />
-                    <input required type="number" min="1" max="100" value={newCoupon.discount_percent} onChange={e => setNewCoupon({ ...newCoupon, discount_percent: e.target.value })} placeholder="Discount %" style={adminInputStyle} />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <select value={newCoupon.discount_type} onChange={e => setNewCoupon({ ...newCoupon, discount_type: e.target.value })} style={{...adminInputStyle, flex: 1}}>
+                        <option value="percent">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                      </select>
+                      <input required type="number" min="1" value={newCoupon.discount_value} onChange={e => setNewCoupon({ ...newCoupon, discount_value: e.target.value })} placeholder="Discount Value" style={{...adminInputStyle, flex: 1}} />
+                    </div>
+                    <input type="number" min="0" value={newCoupon.min_order_value} onChange={e => setNewCoupon({ ...newCoupon, min_order_value: e.target.value })} placeholder="Min Order Value (₹) - 0 for no minimum" style={adminInputStyle} />
                     <button type="submit" className="btn-primary" style={{ padding: "11px 24px" }}>Add Coupon</button>
                   </form>
                   <div>
@@ -1026,9 +1035,12 @@ export function AdminPanel({
                     <div style={{ maxHeight: 200, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
                       {coupons.map(c => (
                         <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#FAF5EF", color: "#1c1917", padding: "8px 12px", border: "1px solid rgba(115,0,0,0.15)", borderRadius: 8 }}>
-                          <div>
-                            <span style={{ fontWeight: 700, color: "#730000" }}>{c.code}</span>
-                            <span style={{ marginLeft: 12, color: "#16a34a", fontWeight: 600 }}>{c.discount_percent}% OFF</span>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontWeight: 800, color: "#1C1109", display: "block" }}>{c.code}</span>
+                            <span style={{ fontSize: 13, color: "#D4AF37", fontWeight: 700 }}>
+                              {c.discount_type === 'fixed' ? `₹${c.discount_value || c.discount_percent} OFF` : `${c.discount_value || c.discount_percent}% OFF`}
+                            </span>
+                            {c.min_order_value > 0 && <div style={{ fontSize: 11, color: "#6B7280" }}>Min. Order: ₹{c.min_order_value}</div>}
                           </div>
                           <button onClick={() => deleteCoupon(c.id)} style={{ background: "#fee2e2", color: "#dc2626", border: "none", borderRadius: 6, cursor: "pointer", padding: "4px 8px", fontSize: 12, fontWeight: 700 }}>Delete</button>
                         </div>
@@ -1081,6 +1093,7 @@ export function AdminPanel({
                     <th style={{ padding: 12 }}>Total</th>
                     <th style={{ padding: 12 }}>Coupon</th>
                     <th style={{ padding: 12, minWidth: 120 }}>Date</th>
+                    <th style={{ padding: 12 }}>Payment Method</th>
                     <th style={{ padding: 12 }}>Tracking Status</th>
                   </tr>
                 </thead>
@@ -1110,7 +1123,10 @@ export function AdminPanel({
                         {(o.discount_amount || 0) > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600 }}>- ₹{(o.discount_amount || 0).toFixed(2)}</div>}
                       </td>
                       <td style={{ padding: 12, fontSize: 12, fontWeight: 600, color: "#1c1917" }}>{o.coupon_code || "N/A"}</td>
-                      <td style={{ padding: 12, color: "#5C3A21" }}>{o.date}</td>
+                      <td style={{ padding: 12, color: "#5C3A21", fontSize: 13 }}>{o.date}</td>
+                      <td style={{ padding: 12, fontSize: 13, fontWeight: 800, color: o.payment_method === 'Cash on Delivery' ? '#b45309' : '#16a34a' }}>
+                        {o.payment_method || "Online"}
+                      </td>
                       <td style={{ padding: 12 }}>
                         <select value={o.status} onChange={async e => {
                           const val = e.target.value;
@@ -1145,6 +1161,7 @@ export function AdminPanel({
                     <th style={{ padding: 12 }}>Total</th>
                     <th style={{ padding: 12 }}>Coupon</th>
                     <th style={{ padding: 12, minWidth: 120 }}>Date</th>
+                    <th style={{ padding: 12 }}>Payment Method</th>
                     <th style={{ padding: 12 }}>Tracking Status</th>
                   </tr>
                 </thead>
@@ -1174,7 +1191,10 @@ export function AdminPanel({
                         {(o.discount_amount || 0) > 0 && <div style={{ fontSize: 11, color: "#16a34a", fontWeight: 600 }}>- ₹{(o.discount_amount || 0).toFixed(2)}</div>}
                       </td>
                       <td style={{ padding: 12, fontSize: 12, fontWeight: 600, color: "#1c1917" }}>{o.coupon_code || "N/A"}</td>
-                      <td style={{ padding: 12, color: "#5C3A21" }}>{o.date}</td>
+                      <td style={{ padding: 12, color: "#5C3A21", fontSize: 13 }}>{o.date}</td>
+                      <td style={{ padding: 12, fontSize: 13, fontWeight: 800, color: o.payment_method === 'Cash on Delivery' ? '#b45309' : '#16a34a' }}>
+                        {o.payment_method || "Online"}
+                      </td>
                       <td style={{ padding: 12 }}>
                         <select value={o.status} onChange={async e => {
                           const val = e.target.value;

@@ -41,7 +41,7 @@ const ORGANIZATION_SCHEMA = {
     "@type": "ContactPoint",
     "telephone": "+91-90090-36633",
     "contactType": "customer service",
-    "email": "evercraft2026@gmail.com",
+    "email": "info@evercraft.co.in",
     "availableLanguage": ["English", "Hindi"],
     "areaServed": "IN"
   },

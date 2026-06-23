@@ -64,11 +64,11 @@ const bookSlideVariants = {
 const HERO_TAGLINES = [
     { 
       title: "Crafting Every Word Into A *Masterpiece*", 
-      subtitle: "India's new-media publishing platform — bridging authors and readers across the nation. From raw manuscript to bookshelf masterpiece." 
+      subtitle: "India's new-media publishing platform — bridging authors and readers across the nation. From raw manuscript to bookshelf masterpiece" 
     },
     { 
       title: "Discover *Stories* That Resonate With The Soul", 
-      subtitle: "Explore books that inspire, enlighten, and transform." 
+      subtitle: "Explore books that inspire, enlighten, and transform" 
     },
     { 
       title: "Your Trusted Book *Publishing* Partner", 

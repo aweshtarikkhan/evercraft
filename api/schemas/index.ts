@@ -54,7 +54,9 @@ export const OrderCreateSchema = z.object({
   user_id: z.number().int(),
   items: z.array(OrderItemSchema),
   shipping_address_id: z.number().int(),
-  coupon_code: z.string().optional().nullable()
+  coupon_code: z.string().optional().nullable(),
+  status: z.string().optional(),
+  payment_method: z.string().optional()
 });
 
 export const OrderStatusUpdateSchema = z.object({
@@ -63,7 +65,9 @@ export const OrderStatusUpdateSchema = z.object({
 
 export const CouponCreateSchema = z.object({
   code: z.string(),
-  discount_percent: z.number().int()
+  discount_type: z.string().default('percent'),
+  discount_value: z.number(),
+  min_order_value: z.number().default(0)
 });
 
 export const SettingsUpdateSchema = z.record(z.string());
@@ -138,5 +142,29 @@ export const SupabaseLoginSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   profile_image: z.string().optional().nullable()
+});
+
+export const ServiceInquiryCreateSchema = z.object({
+  service_name: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  phone: z.string(),
+  message: z.string()
+});
+
+export const ServiceFeedbackCreateSchema = z.object({
+  service_name: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  rating: z.number().int(),
+  feedback: z.string()
+});
+
+export const TeamMemberCreateSchema = z.object({
+  name: z.string(),
+  role: z.string(),
+  image: z.string(),
+  description: z.string(),
+  category: z.string()
 });
 

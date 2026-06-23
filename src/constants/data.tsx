@@ -1,7 +1,7 @@
 export const SERVICES = [
   { 
     icon: "✍️", title: "Manuscript Evaluation", 
-    desc: "Expert analysis with detailed feedback on structure, narrative, and marketability.", 
+    desc: "Expert analysis with detailed feedback on structure, narrative, and marketability", 
     color: "#7c3aed",
     slug: "manuscript-evaluation",
     longDesc: "Our manuscript evaluation service provides a comprehensive, professional assessment of your work. Our team of experienced editors and literary experts will analyze every aspect of your manuscript — from plot structure and character development to pacing, dialogue, and market potential. You'll receive a detailed written report with actionable feedback to strengthen your book before it goes to print.",
@@ -14,15 +14,15 @@ export const SERVICES = [
       "Confidentiality agreement for all submitted manuscripts"
     ],
     processSteps: [
-      { step: "01", title: "Submit Your Manuscript", desc: "Upload your complete or partial manuscript through our secure portal." },
-      { step: "02", title: "Expert Assignment", desc: "We assign a genre-specialist editor who best fits your work." },
-      { step: "03", title: "Deep Analysis", desc: "Your editor conducts a thorough evaluation over 7-10 days." },
-      { step: "04", title: "Receive Your Report", desc: "Get a detailed feedback report with clear, actionable next steps." }
+      { step: "01", title: "Submit Your Manuscript", desc: "Upload your complete or partial manuscript through our secure portal" },
+      { step: "02", title: "Expert Assignment", desc: "We assign a genre-specialist editor who best fits your work" },
+      { step: "03", title: "Deep Analysis", desc: "Your editor conducts a thorough evaluation over 7-10 days" },
+      { step: "04", title: "Receive Your Report", desc: "Get a detailed feedback report with clear, actionable next steps" }
     ]
   },
   { 
     icon: "✂️", title: "Editing & Proofreading", 
-    desc: "Professional line editing and proofreading to polish your work to perfection.", 
+    desc: "Professional line editing and proofreading to polish your work to perfection", 
     color: "#0891b2",
     slug: "editing-proofreading",
     longDesc: "Transform your manuscript into a polished, publication-ready masterpiece. Our editing and proofreading service covers everything from developmental editing (big-picture structure and storytelling) to meticulous line editing and final proofreading. Every sentence is refined for clarity, flow, and impact while preserving your unique voice.",
@@ -35,15 +35,15 @@ export const SERVICES = [
       "Two rounds of revisions included"
     ],
     processSteps: [
-      { step: "01", title: "Manuscript Submission", desc: "Share your manuscript in Word or PDF format through our portal." },
-      { step: "02", title: "Developmental Edit", desc: "Big-picture feedback on structure, pacing, and story arc." },
-      { step: "03", title: "Line Editing", desc: "Sentence-by-sentence refinement for clarity and style." },
-      { step: "04", title: "Final Proofread", desc: "A meticulous final pass to catch every last error." }
+      { step: "01", title: "Manuscript Submission", desc: "Share your manuscript in Word or PDF format through our portal" },
+      { step: "02", title: "Developmental Edit", desc: "Big-picture feedback on structure, pacing, and story arc" },
+      { step: "03", title: "Line Editing", desc: "Sentence-by-sentence refinement for clarity and style" },
+      { step: "04", title: "Final Proofread", desc: "A meticulous final pass to catch every last error" }
     ]
   },
   { 
     icon: "🎨", title: "Cover & Layout Design", 
-    desc: "Stunning, market-ready covers and interiors that captivate readers instantly.", 
+    desc: "Stunning, market-ready covers and interiors that captivate readers instantly", 
     color: "#db2777",
     slug: "cover-layout-design",
     longDesc: "First impressions matter — and your book cover is the most powerful marketing tool you have. Our professional designers create stunning, genre-appropriate covers that grab attention on both physical bookshelves and online thumbnails. We also design clean, professional interior layouts that enhance the reading experience.",
@@ -56,15 +56,15 @@ export const SERVICES = [
       "ISBN barcode integration and Amazon/Flipkart compliance"
     ],
     processSteps: [
-      { step: "01", title: "Design Brief", desc: "Share your vision, genre, and reference designs you admire." },
-      { step: "02", title: "Concept Creation", desc: "Our designers create 3 unique cover concepts for you." },
-      { step: "03", title: "Refinement", desc: "Unlimited revisions on your chosen design until it's perfect." },
-      { step: "04", title: "Final Delivery", desc: "Print-ready and digital files delivered in all required formats." }
+      { step: "01", title: "Design Brief", desc: "Share your vision, genre, and reference designs you admire" },
+      { step: "02", title: "Concept Creation", desc: "Our designers create 3 unique cover concepts for you" },
+      { step: "03", title: "Refinement", desc: "Unlimited revisions on your chosen design until it's perfect" },
+      { step: "04", title: "Final Delivery", desc: "Print-ready and digital files delivered in all required formats" }
     ]
   },
   { 
     icon: "🖨️", title: "Printing", 
-    desc: "High-quality printing with premium paper options, every book feels exceptional.", 
+    desc: "High-quality printing with premium paper options, every book feels exceptional", 
     color: "#d97706",
     slug: "printing",
     longDesc: "We partner with India's finest printing facilities to produce books that look and feel exceptional. Choose from a range of paper types, binding styles, and finishes. Whether you need 50 copies or 50,000, our print solutions deliver consistent quality at competitive prices.",
@@ -77,15 +77,15 @@ export const SERVICES = [
       "Quality inspection on every batch"
     ],
     processSteps: [
-      { step: "01", title: "Spec Selection", desc: "Choose paper, binding, size, and finish for your book." },
-      { step: "02", title: "Proof Copy", desc: "Receive a physical proof copy for review and approval." },
-      { step: "03", title: "Bulk Printing", desc: "Once approved, your full print run begins at our partner facility." },
-      { step: "04", title: "Delivery", desc: "Printed books delivered to your doorstep or our distribution warehouse." }
+      { step: "01", title: "Spec Selection", desc: "Choose paper, binding, size, and finish for your book" },
+      { step: "02", title: "Proof Copy", desc: "Receive a physical proof copy for review and approval" },
+      { step: "03", title: "Bulk Printing", desc: "Once approved, your full print run begins at our partner facility" },
+      { step: "04", title: "Delivery", desc: "Printed books delivered to your doorstep or our distribution warehouse" }
     ]
   },
   { 
     icon: "🚚", title: "Distribution", 
-    desc: "Nationwide distribution on Amazon, Flipkart, ONDC, and major bookstores across India.", 
+    desc: "Nationwide distribution on Amazon, Flipkart, ONDC, and major bookstores across India", 
     color: "#059669",
     slug: "distribution",
     longDesc: "Get your book in front of millions of readers across India. We handle complete distribution — from listing setup and metadata optimization on Amazon, Flipkart, and ONDC, to logistics and fulfillment. Your book reaches every corner of the country through our extensive network.",
@@ -98,15 +98,15 @@ export const SERVICES = [
       "Offline distribution to select bookstores and events"
     ],
     processSteps: [
-      { step: "01", title: "Platform Setup", desc: "We create optimized listings on all major platforms." },
-      { step: "02", title: "Warehousing", desc: "Your books are stored in our distribution center for fast shipping." },
-      { step: "03", title: "Order Fulfillment", desc: "Orders are picked, packed, and shipped within 24-48 hours." },
-      { step: "04", title: "Sales Reports", desc: "Weekly sales reports and royalty statements delivered to you." }
+      { step: "01", title: "Platform Setup", desc: "We create optimized listings on all major platforms" },
+      { step: "02", title: "Warehousing", desc: "Your books are stored in our distribution center for fast shipping" },
+      { step: "03", title: "Order Fulfillment", desc: "Orders are picked, packed, and shipped within 24-48 hours" },
+      { step: "04", title: "Sales Reports", desc: "Weekly sales reports and royalty statements delivered to you" }
     ]
   },
   { 
     icon: "📢", title: "Marketing & Promotion", 
-    desc: "Targeted digital campaigns and author branding to maximize your reach.", 
+    desc: "Targeted digital campaigns and author branding to maximize your reach", 
     color: "#dc2626",
     slug: "marketing-promotion",
     longDesc: "Writing a great book is half the battle — getting it noticed is the other half. Our marketing team creates tailored promotional campaigns to build buzz around your book. From social media strategy and influencer outreach to book launch events and paid advertising, we ensure your book reaches its ideal audience.",
@@ -119,10 +119,10 @@ export const SERVICES = [
       "Virtual and physical book launch event planning"
     ],
     processSteps: [
-      { step: "01", title: "Strategy Session", desc: "We define your target audience, goals, and marketing budget." },
-      { step: "02", title: "Content Creation", desc: "Design social posts, ads, trailers, and promotional material." },
-      { step: "03", title: "Campaign Launch", desc: "Execute multi-channel campaigns across social, search, and retail." },
-      { step: "04", title: "Analyze & Optimize", desc: "Track performance, optimize campaigns, and scale what works." }
+      { step: "01", title: "Strategy Session", desc: "We define your target audience, goals, and marketing budget" },
+      { step: "02", title: "Content Creation", desc: "Design social posts, ads, trailers, and promotional material" },
+      { step: "03", title: "Campaign Launch", desc: "Execute multi-channel campaigns across social, search, and retail" },
+      { step: "04", title: "Analyze & Optimize", desc: "Track performance, optimize campaigns, and scale what works" }
     ]
   },
 ];

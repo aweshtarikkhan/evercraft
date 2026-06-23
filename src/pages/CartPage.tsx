@@ -38,7 +38,13 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
         <div style={{ fontSize: 80, marginBottom: 24 }}>🎊</div>
         <h2 style={{ fontSize: 32, fontWeight: 900, color: "#730000", marginBottom: 12 }}>Order Placed Successfully!</h2>
         <p style={{ color: "#2D1B10", fontSize: 16, marginBottom: 8 }}>Thank you for your purchase! You'll receive an email confirmation shortly.</p>
-        <p style={{ color: "#5C3A21", fontSize: 14, marginBottom: 32 }}>Your books will be delivered within 5–7 business days.</p>
+        <p style={{ color: "#5C3A21", fontSize: 14, marginBottom: 16 }}>Your books will be delivered within 5–7 business days.</p>
+        {paymentMethod === 'cod' && (
+          <div style={{ background: "#fef3c7", padding: "12px 16px", borderRadius: 8, marginBottom: 24, border: "1px solid rgba(212, 175, 55, 0.3)" }}>
+            <p style={{ color: "#b45309", fontSize: 14, fontWeight: 700, margin: 0 }}>💵 Cash on Delivery Selected</p>
+            <p style={{ color: "#92400e", fontSize: 13, margin: "4px 0 0 0" }}>Please keep exact cash ready at the time of delivery.</p>
+          </div>
+        )}
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <button className="btn-primary" onClick={() => go("shop")}>Continue Shopping 📚</button>
           <button onClick={() => { go("home"); setDashboardTab("Orders"); setDashboardOpen(true); }} style={{ background: "none", border: "2px solid #730000", color: "#730000", borderRadius: 12, padding: "12px 24px", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Track Your Order 🚚</button>
@@ -68,7 +74,24 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
       const res = await fetch(`${API_BASE_URL}/coupons/validate/${coupon}`);
       if (res.ok) {
         const couponData = await res.json();
-        const newDiscount = total * (couponData.discount_percent / 100);
+        
+        const d_type = couponData.discount_type || 'percent';
+        const d_value = couponData.discount_value || couponData.discount_percent || 0;
+        const min_val = couponData.min_order_value || 0;
+
+        if (total < min_val) {
+          setDiscount(0);
+          showToast(`⚠️ Minimum order value of ₹${min_val} required for this coupon.`);
+          return;
+        }
+
+        let newDiscount = 0;
+        if (d_type === 'percent') {
+          newDiscount = total * (d_value / 100);
+        } else if (d_type === 'fixed') {
+          newDiscount = d_value;
+        }
+
         setDiscount(newDiscount);
         showToast(`✅ Coupon Applied! You saved ₹${newDiscount.toFixed(2)}.`);
       } else {
@@ -147,6 +170,7 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
                 shipping_address_id: selectedAddressId,
                 coupon_code: discount > 0 ? coupon.toUpperCase() : null,
                 status: status,
+                payment_method: paymentMethod === 'cod' ? "Cash on Delivery" : "Online",
             })
         });
         if (res.ok) {

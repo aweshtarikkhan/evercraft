@@ -26,10 +26,10 @@ const staggerContainer = {
 export function AboutPage({ go }: { go: (p: any) => void }) {
   const { settings } = useSettings();
   const team = [
-    { name: "Editorial Team", role: "Expert Editors & Proofreaders", icon: "✍️", desc: "Seasoned literary professionals who transform raw manuscripts into polished masterpieces." },
-    { name: "Design Studio", role: "Cover & Layout Designers", icon: "🎨", desc: "Creative minds who craft visually stunning covers and interiors that stand out on any shelf." },
-    { name: "Marketing Wing", role: "Digital Marketing Specialists", icon: "📢", desc: "Strategists who amplify your book's reach through targeted campaigns and author branding." },
-    { name: "Distribution Hub", role: "Logistics & Platform Partners", icon: "🚚", desc: "Ensuring your book reaches readers across India — online and in physical stores." },
+    { name: "Editorial Team", role: "Expert Editors & Proofreaders", icon: "✍️", desc: "Seasoned literary professionals who transform raw manuscripts into polished masterpieces" },
+    { name: "Design Studio", role: "Cover & Layout Designers", icon: "🎨", desc: "Creative minds who craft visually stunning covers and interiors that stand out on any shelf" },
+    { name: "Marketing Wing", role: "Digital Marketing Specialists", icon: "📢", desc: "Strategists who amplify your book's reach through targeted campaigns and author branding" },
+    { name: "Distribution Hub", role: "Logistics & Platform Partners", icon: "🚚", desc: "Ensuring your book reaches readers across India — online and in physical stores" },
   ];
 
   const [activeTeamDetails, setActiveTeamDetails] = useState<string | null>(null);
@@ -62,10 +62,10 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
     linkedin: "https://linkedin.com",
     desc: m.description
   })) : [
-    { name: "Aarav Sharma", role: "Chief Editor", img: "", linkedin: "https://linkedin.com", desc: "10+ years of experience in fiction editing. Loves historical novels and guiding new authors." },
-    { name: "Priya Patel", role: "Senior Proofreader", img: "", linkedin: "https://linkedin.com", desc: "Eagle-eyed proofreader who ensures every manuscript is grammatically flawless and ready for print." },
-    { name: "Rahul Verma", role: "Acquisitions Editor", img: "", linkedin: "https://linkedin.com", desc: "Expert in scouting fresh talent and acquiring bestselling titles that resonate with readers." },
-    { name: "Neha Gupta", role: "Copy Editor", img: "", linkedin: "https://linkedin.com", desc: "Specializes in non-fiction and biographies, refining author voices while keeping authenticity." }
+    { name: "Aarav Sharma", role: "Chief Editor", img: "", linkedin: "https://linkedin.com", desc: "10+ years of experience in fiction editing. Loves historical novels and guiding new authors" },
+    { name: "Priya Patel", role: "Senior Proofreader", img: "", linkedin: "https://linkedin.com", desc: "Eagle-eyed proofreader who ensures every manuscript is grammatically flawless and ready for print" },
+    { name: "Rahul Verma", role: "Acquisitions Editor", img: "", linkedin: "https://linkedin.com", desc: "Expert in scouting fresh talent and acquiring bestselling titles that resonate with readers" },
+    { name: "Neha Gupta", role: "Copy Editor", img: "", linkedin: "https://linkedin.com", desc: "Specializes in non-fiction and biographies, refining author voices while keeping authenticity" }
   ];
 
   const designMembers = dbDesign.length > 0 ? dbDesign.map(m => ({
@@ -75,10 +75,10 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
     linkedin: "https://linkedin.com",
     desc: m.description
   })) : [
-    { name: "Vikram Singh", role: "Art Director", img: "", linkedin: "https://linkedin.com", desc: "Award-winning designer with an eye for typography and composition." },
-    { name: "Ananya Desai", role: "Cover Illustrator", img: "", linkedin: "https://linkedin.com", desc: "Specializes in vibrant, custom illustrations that bring stories to life." },
-    { name: "Rohan Kapoor", role: "Typesetter", img: "", linkedin: "https://linkedin.com", desc: "Ensures the interior layout is perfectly formatted for a seamless reading experience." },
-    { name: "Meera Joshi", role: "Digital Asset Designer", img: "", linkedin: "https://linkedin.com", desc: "Creates engaging promotional graphics for our authors' marketing campaigns." }
+    { name: "Vikram Singh", role: "Art Director", img: "", linkedin: "https://linkedin.com", desc: "Award-winning designer with an eye for typography and composition" },
+    { name: "Ananya Desai", role: "Cover Illustrator", img: "", linkedin: "https://linkedin.com", desc: "Specializes in vibrant, custom illustrations that bring stories to life" },
+    { name: "Rohan Kapoor", role: "Typesetter", img: "", linkedin: "https://linkedin.com", desc: "Ensures the interior layout is perfectly formatted for a seamless reading experience" },
+    { name: "Meera Joshi", role: "Digital Asset Designer", img: "", linkedin: "https://linkedin.com", desc: "Creates engaging promotional graphics for our authors' marketing campaigns" }
   ];
 
   const marketingMembers = dbMarketing.length > 0 ? dbMarketing.map(m => ({
@@ -88,16 +88,16 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
     linkedin: "https://linkedin.com",
     desc: m.description
   })) : [
-    { name: "Karan Malhotra", role: "Marketing Head", img: "", linkedin: "https://linkedin.com", desc: "Strategic thinker focused on maximizing book visibility and author branding." },
-    { name: "Sanya Iyer", role: "Social Media Manager", img: "", linkedin: "https://linkedin.com", desc: "Crafts viral content and manages vibrant reader communities online." },
-    { name: "Tariq Ali", role: "PR Specialist", img: "", linkedin: "https://linkedin.com", desc: "Connects authors with media outlets, bloggers, and literary influencers." },
-    { name: "Pooja Nair", role: "Ad Strategist", img: "", linkedin: "https://linkedin.com", desc: "Data-driven expert in running high-converting ad campaigns across platforms." }
+    { name: "Karan Malhotra", role: "Marketing Head", img: "", linkedin: "https://linkedin.com", desc: "Strategic thinker focused on maximizing book visibility and author branding" },
+    { name: "Sanya Iyer", role: "Social Media Manager", img: "", linkedin: "https://linkedin.com", desc: "Crafts viral content and manages vibrant reader communities online" },
+    { name: "Tariq Ali", role: "PR Specialist", img: "", linkedin: "https://linkedin.com", desc: "Connects authors with media outlets, bloggers, and literary influencers" },
+    { name: "Pooja Nair", role: "Ad Strategist", img: "", linkedin: "https://linkedin.com", desc: "Data-driven expert in running high-converting ad campaigns across platforms" }
   ];
 
   const distributionPartners = [
-    { name: "Amazon", bg: "linear-gradient(135deg, #f97316, #ea580c)", icon: "📦", desc: "Your books available on Amazon India and globally, reaching millions of active readers." },
-    { name: "Flipkart", bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: "🛍️", desc: "Extensive reach across Indian tier-2 and tier-3 cities with India's homegrown e-commerce leader." },
-    { name: "ONDC", bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: "🌐", desc: "Empowering decentralized, direct-to-consumer sales across India's revolutionary digital network." }
+    { name: "Amazon", bg: "linear-gradient(135deg, #f97316, #ea580c)", icon: "📦", desc: "Your books available on Amazon India and globally, reaching millions of active readers" },
+    { name: "Flipkart", bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: "🛍️", desc: "Extensive reach across Indian tier-2 and tier-3 cities with India's homegrown e-commerce leader" },
+    { name: "ONDC", bg: "linear-gradient(135deg, #2563eb, #1d4ed8)", icon: "🌐", desc: "Empowering decentralized, direct-to-consumer sales across India's revolutionary digital network" }
   ];
 
   let modalData: any[] = [];
@@ -264,10 +264,10 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
             className="why-grid"
           >
             {[
-              { icon: "⚡", title: "Fast Turnaround", desc: "From manuscript to published book in record time without compromising quality." },
-              { icon: "💎", title: "Premium Quality", desc: "Best-in-class editing, design, and printing that matches international standards." },
-              { icon: "🌐", title: "Wide Reach", desc: "Your book available on Amazon, Flipkart, ONDC, and major bookstores across India." },
-              { icon: "🤝", title: "Author-First", desc: "Transparent royalties, dedicated support, and your creative vision always respected." },
+              { icon: "⚡", title: "Fast Turnaround", desc: "From manuscript to published book in record time without compromising quality" },
+              { icon: "💎", title: "Premium Quality", desc: "Best-in-class editing, design, and printing that matches international standards" },
+              { icon: "🌐", title: "Wide Reach", desc: "Your book available on Amazon, Flipkart, ONDC, and major bookstores across India" },
+              { icon: "🤝", title: "Author-First", desc: "Transparent royalties, dedicated support, and your creative vision always respected" },
             ].map(w => (
               <motion.div 
                 variants={fadeInUp}

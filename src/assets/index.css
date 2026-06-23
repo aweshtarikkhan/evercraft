@@ -105,6 +105,13 @@ div[style*="linear-gradient"] .gold-shimmer {
 .card-hover h3, .card-hover p, .card-hover span {
   transition: color 0.4s ease;
 }
+.card-hover-body {
+  background-color: #ffffff;
+  transition: background-color 0.4s ease;
+}
+.card-hover:hover .card-hover-body {
+  background-color: transparent;
+}
 
 .testimonial-card {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);

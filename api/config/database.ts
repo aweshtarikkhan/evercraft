@@ -163,6 +163,24 @@ export async function initDb() {
     } catch (e) {}
 
     try {
+      await query(`ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Online' AFTER status`);
+    } catch (e) {}
+
+    try {
+      await query(`ALTER TABLE coupons ADD COLUMN discount_type VARCHAR(50) DEFAULT 'percent'`);
+    } catch (e) {}
+
+    try {
+      await query(`ALTER TABLE coupons ADD COLUMN discount_value FLOAT DEFAULT 0`);
+      // Migrate existing discount_percent to discount_value
+      await query(`UPDATE coupons SET discount_value = discount_percent WHERE discount_value = 0 AND discount_percent IS NOT NULL`);
+    } catch (e) {}
+
+    try {
+      await query(`ALTER TABLE coupons ADD COLUMN min_order_value FLOAT DEFAULT 0`);
+    } catch (e) {}
+
+    try {
       await query(`ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'Customer'`);
     } catch (e) {}
 
@@ -180,13 +198,11 @@ export async function initDb() {
       )
     `);
 
-    await query(`
-      CREATE TABLE IF NOT EXISTS coupons (
-        id INT AUTO_INCREMENT PRIMARY KEY, 
-        code VARCHAR(255) UNIQUE, 
-        discount_percent INT
-      )
-    `);
+    await query(`CREATE TABLE IF NOT EXISTS coupons (id INT AUTO_INCREMENT PRIMARY KEY, code VARCHAR(255) UNIQUE, discount_percent INT)`);
+    await query(`CREATE TABLE IF NOT EXISTS settings (s_key VARCHAR(255) PRIMARY KEY, s_value TEXT)`);
+    await query(`CREATE TABLE IF NOT EXISTS service_inquiries (id INT AUTO_INCREMENT PRIMARY KEY, service_name VARCHAR(255), name VARCHAR(255), email VARCHAR(255), phone VARCHAR(50), message TEXT, date_submitted VARCHAR(50))`);
+    await query(`CREATE TABLE IF NOT EXISTS service_feedbacks (id INT AUTO_INCREMENT PRIMARY KEY, service_name VARCHAR(255), name VARCHAR(255), email VARCHAR(255), rating INT, feedback TEXT, date_submitted VARCHAR(50))`);
+    await query(`CREATE TABLE IF NOT EXISTS team_members (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255), role VARCHAR(255), image LONGTEXT, description TEXT, category VARCHAR(100))`);
 
     await query(`
       CREATE TABLE IF NOT EXISTS addresses (
@@ -430,6 +446,36 @@ export async function initDb() {
         }
       }
     }
+
+      // 3.5 Seed Team Members
+      const teamCount = await pool.query<any[]>('SELECT COUNT(*) as c FROM team_members');
+      if (teamCount[0][0].c === 0) {
+        const teamSeedData = [
+          ["Aarav Sharma", "Chief Editor", "", "10+ years of experience in fiction editing. Loves historical novels and guiding new authors.", "Editorial Team"],
+          ["Priya Patel", "Senior Proofreader", "", "Eagle-eyed proofreader who ensures every manuscript is grammatically flawless and ready for print.", "Editorial Team"],
+          ["Rahul Verma", "Acquisitions Editor", "", "Expert in scouting fresh talent and acquiring bestselling titles that resonate with readers.", "Editorial Team"],
+          ["Neha Gupta", "Copy Editor", "", "Specializes in non-fiction and biographies, refining author voices while keeping authenticity.", "Editorial Team"],
+          ["Vikram Singh", "Art Director", "", "Award-winning designer with an eye for typography and composition.", "Design Team"],
+          ["Ananya Desai", "Cover Illustrator", "", "Specializes in vibrant, custom illustrations that bring stories to life.", "Design Team"],
+          ["Rohan Kapoor", "Typesetter", "", "Ensures the interior layout is perfectly formatted for a seamless reading experience.", "Design Team"],
+          ["Meera Joshi", "Digital Asset Designer", "", "Creates engaging promotional graphics for our authors' marketing campaigns.", "Design Team"],
+          ["Karan Malhotra", "Marketing Head", "", "Strategic thinker focused on maximizing book visibility and author branding.", "Marketing Team"],
+          ["Sanya Iyer", "Social Media Manager", "", "Option to build viral content and manages vibrant reader communities online.", "Marketing Team"],
+          ["Tariq Ali", "PR Specialist", "", "Connects authors with media outlets, bloggers, and literary influencers.", "Marketing Team"],
+          ["Pooja Nair", "Ad Strategist", "", "Data-driven expert in running high-converting ad campaigns across platforms.", "Marketing Team"]
+        ];
+
+        for (const tm of teamSeedData) {
+          await query(
+            `INSERT INTO team_members (name, role, image, description, category) VALUES (?, ?, ?, ?, ?)`,
+            tm
+          );
+        }
+      }
+
+    // 4. One-time title updates for specific capitalization issues
+    await query("UPDATE books SET title = 'Kya Sikhata Hai Sundarkand' WHERE title = 'kya sikhata hai sundarkand'");
+    await query("UPDATE books SET title = 'A Handbook on Non-Performing Assets' WHERE title = 'A handbook on non performing assets'");
 
     console.log("✅ MySQL Database tables initialized!");
   } catch (error) {

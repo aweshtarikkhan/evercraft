@@ -49,8 +49,8 @@ export function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, 
         finalImg = await uploadImageToCloudinary(finalImg);
         setProfileImg(finalImg); // React UI me base64 hata kar original Cloudinary URL set karo
       } catch(e: any) {
-        showToast("❌ Upload Failed! Did you create the 'evercraft' unsigned preset?");
-        return;
+        showToast("⚠️ Cloudinary upload failed, saving compressed image directly to database...");
+        // Fallback: finalImg remains as the base64 string and will be saved directly
       }
     }
 

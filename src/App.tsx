@@ -593,7 +593,7 @@ export default function App() {
   const [dashboardTab, setDashboardTab] = useState<"Profile"|"Orders"|"Address"|"Password">("Profile");
   const [frontStats, setFrontStats] = useState<any>({ books_published: "0", happy_readers: "500+", cities_reached: "10+", sales_platforms: "2" });
   const [settings, setSettings] = useState<any>({
-    contact_email: "evercraft2026@gmail.com",
+    contact_email: "info@evercraft.co.in",
     contact_phone: "+91 90090 36633",
     contact_hours: "Mon–Fri, 10 AM – 6 PM IST",
     contact_address: "Vrindavan Nagar, Bhopal - 462022",

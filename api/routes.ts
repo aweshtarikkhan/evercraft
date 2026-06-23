@@ -409,7 +409,7 @@ router.get('/users/:user_id/orders', verifyToken, rlsCheck, async (req: Request,
 
 router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Request, res: Response) => {
   try {
-    const { user_id, items, shipping_address_id, coupon_code } = req.body;
+    const { user_id, items, shipping_address_id, coupon_code, status, payment_method } = req.body;
     
     // RLS Check
     if (req.user!.id !== user_id && !['Admin', 'Master Admin', 'Developer'].includes(req.user!.role || '')) {
@@ -448,7 +448,18 @@ router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Req
       const coupons = await query('SELECT * FROM coupons WHERE code = ?', [coupon_code.toUpperCase()]);
       if (coupons.length > 0) {
         const coupon = coupons[0];
-        discount_amount = subtotal * (coupon.discount_percent / 100);
+        // Ensure discount_type and discount_value exist, fallback to legacy discount_percent
+        const d_type = coupon.discount_type || 'percent';
+        const d_value = coupon.discount_value || coupon.discount_percent || 0;
+        const min_val = coupon.min_order_value || 0;
+
+        if (subtotal >= min_val) {
+          if (d_type === 'percent') {
+            discount_amount = subtotal * (d_value / 100);
+          } else if (d_type === 'fixed') {
+            discount_amount = d_value;
+          }
+        }
       }
     }
 
@@ -471,9 +482,12 @@ router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Req
     const user_name = users.length > 0 ? users[0].name : 'Unknown User';
     const itemsJsonString = JSON.stringify(fullItemsDetails);
 
+    const ord_status = status || 'Order Placed';
+    const pay_method = payment_method || 'Online';
+
     await query(
-      'INSERT INTO orders (user_id, user_name, shipping_address_id, items, total, coupon_code, discount_amount, gst_amount, shipping_cost, `date`, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [user_id, user_name, shipping_address_id, itemsJsonString, final_total, coupon_code || null, discount_amount, gst_amount, shipping_cost, dateStr, 'Order Placed']
+      'INSERT INTO orders (user_id, user_name, shipping_address_id, items, total, coupon_code, discount_amount, gst_amount, shipping_cost, `date`, status, payment_method) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [user_id, user_name, shipping_address_id, itemsJsonString, final_total, coupon_code || null, discount_amount, gst_amount, shipping_cost, dateStr, ord_status, pay_method]
     );
 
     // 6. Decrement stock
@@ -564,9 +578,10 @@ router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Req
 
 router.get('/orders', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const orders = await query(`
-    SELECT o.*, a.address, a.city, a.pincode
+    SELECT o.*, a.address, a.city, a.pincode, u.email as user_email, u.phone as user_phone
     FROM orders o
     LEFT JOIN addresses a ON o.shipping_address_id = a.id
+    LEFT JOIN users u ON o.user_id = u.id
     ORDER BY o.id DESC
   `);
   return res.json(orders || []);
@@ -587,9 +602,10 @@ router.get('/coupons', verifyToken, adminOnly, async (req: Request, res: Respons
 });
 
 router.post('/coupons', verifyToken, adminOnly, validate(CouponCreateSchema), async (req: Request, res: Response) => {
-  const { code, discount_percent } = req.body;
+  const { code, discount_type, discount_value, min_order_value } = req.body;
   try {
-    await query('INSERT INTO coupons (code, discount_percent) VALUES (?, ?)', [code.toUpperCase(), discount_percent]);
+    const legacyPercent = discount_type === 'percent' ? discount_value : 0;
+    await query('INSERT INTO coupons (code, discount_percent, discount_type, discount_value, min_order_value) VALUES (?, ?, ?, ?, ?)', [code.toUpperCase(), legacyPercent, discount_type, discount_value, min_order_value || 0]);
     return res.json({ message: 'Coupon created' });
   } catch (error: any) {
     if (error.errno === 1062 || error.code === 'ER_DUP_ENTRY') {
@@ -770,7 +786,7 @@ router.put('/users/:user_id/role', verifyToken, adminOnly, async (req: Request, 
 router.delete('/users/:user_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
   const userId = req.params.user_id;
   try {
-    await query('DELETE FROM cart WHERE user_id = ?', [userId]);
+    await query('DELETE FROM carts WHERE user_id = ?', [userId]);
     await query('DELETE FROM addresses WHERE user_id = ?', [userId]);
     await query('DELETE FROM orders WHERE user_id = ?', [userId]);
     await query('DELETE FROM users WHERE id = ?', [userId]);
@@ -1050,6 +1066,68 @@ router.delete('/testimonials/:id', verifyToken, adminOnly, async (req: Request, 
   const id = req.params.id;
   await query('DELETE FROM testimonials WHERE id=?', [id]);
   return res.json({ message: 'Testimonial deleted' });
+});
+
+// ─── ROUTES: SERVICE INQUIRIES & FEEDBACK ───────────────────────────────
+router.post('/service-inquiries', validate(ServiceInquiryCreateSchema), async (req: Request, res: Response) => {
+  const { service_name, name, email, phone, message } = req.body;
+  const dateStr = getTodayDateString();
+  await query(
+    "INSERT INTO service_inquiries (service_name, name, email, phone, message, date_submitted) VALUES (?, ?, ?, ?, ?, ?)",
+    [service_name, name, email, phone, message, dateStr]
+  );
+  return res.json({ message: 'Inquiry received' });
+});
+
+router.get('/service-inquiries', verifyToken, adminOnly, async (req: Request, res: Response) => {
+  const inquiries = await query("SELECT * FROM service_inquiries ORDER BY id DESC");
+  return res.json(inquiries || []);
+});
+
+router.post('/service-feedbacks', validate(ServiceFeedbackCreateSchema), async (req: Request, res: Response) => {
+  const { service_name, name, email, rating, feedback } = req.body;
+  const dateStr = getTodayDateString();
+  await query(
+    "INSERT INTO service_feedbacks (service_name, name, email, rating, feedback, date_submitted) VALUES (?, ?, ?, ?, ?, ?)",
+    [service_name, name, email, rating, feedback, dateStr]
+  );
+  return res.json({ message: 'Feedback received' });
+});
+
+router.get('/service-feedbacks', verifyToken, adminOnly, async (req: Request, res: Response) => {
+  const feedbacks = await query("SELECT * FROM service_feedbacks ORDER BY id DESC");
+  return res.json(feedbacks || []);
+});
+
+// ─── ROUTES: TEAM MEMBERS ─────────────────────────────────────────────────
+router.get('/team-members', async (req: Request, res: Response) => {
+  const members = await query("SELECT * FROM team_members ORDER BY id ASC");
+  return res.json(members || []);
+});
+
+router.post('/team-members', verifyToken, adminOnly, validate(TeamMemberCreateSchema), async (req: Request, res: Response) => {
+  const { name, role, image, description, category } = req.body;
+  const result = await query(
+    "INSERT INTO team_members (name, role, image, description, category) VALUES (?, ?, ?, ?, ?)",
+    [name, role, image, description, category]
+  );
+  return res.json({ id: result.insertId, message: "Team member created" });
+});
+
+router.put('/team-members/:member_id', verifyToken, adminOnly, validate(TeamMemberCreateSchema), async (req: Request, res: Response) => {
+  const memberId = parseInt(req.params.member_id);
+  const { name, role, image, description, category } = req.body;
+  await query(
+    "UPDATE team_members SET name=?, role=?, image=?, description=?, category=? WHERE id=?",
+    [name, role, image, description, category, memberId]
+  );
+  return res.json({ message: "Team member updated" });
+});
+
+router.delete('/team-members/:member_id', verifyToken, adminOnly, async (req: Request, res: Response) => {
+  const memberId = parseInt(req.params.member_id);
+  await query("DELETE FROM team_members WHERE id=?", [memberId]);
+  return res.json({ message: "Team member deleted" });
 });
 
 export default router;

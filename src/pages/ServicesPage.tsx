@@ -26,12 +26,12 @@ const staggerContainer = {
 export function ServicesPage({ go }: { go: (p: any) => void }) {
   const { settings } = useSettings();
   const process = [
-    { step: "01", title: "Submit Manuscript", desc: "Send us your manuscript for a free initial evaluation by our expert editorial team.", icon: "📝" },
-    { step: "02", title: "Editorial Review", desc: "Our editors provide detailed feedback, suggestions, and a roadmap for improvement.", icon: "🔍" },
-    { step: "03", title: "Design & Layout", desc: "Professional cover design and interior layout crafted to perfection.", icon: "🎨" },
-    { step: "04", title: "Print & Distribute", desc: "High-quality printing and nationwide distribution across all major platforms.", icon: "📦" },
-    { step: "05", title: "Market & Promote", desc: "Targeted marketing campaigns to maximize your book's reach and sales.", icon: "📈" },
-    { step: "06", title: "Author Success", desc: "Ongoing support, royalty management, and community building for your author brand.", icon: "✨" },
+    { step: "01", title: "Submit Manuscript", desc: "Send us your manuscript for a free initial evaluation by our expert editorial team", icon: "📝" },
+    { step: "02", title: "Editorial Review", desc: "Our editors provide detailed feedback, suggestions, and a roadmap for improvement", icon: "🔍" },
+    { step: "03", title: "Design & Layout", desc: "Professional cover design and interior layout crafted to perfection", icon: "🎨" },
+    { step: "04", title: "Print & Distribute", desc: "High-quality printing and nationwide distribution across all major platforms", icon: "📦" },
+    { step: "05", title: "Market & Promote", desc: "Targeted marketing campaigns to maximize your book's reach and sales", icon: "📈" },
+    { step: "06", title: "Author Success", desc: "Ongoing support, royalty management, and community building for your author brand", icon: "✨" },
   ];
 
   return (
@@ -108,7 +108,7 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
                   <div style={{ fontSize: 48, marginBottom: 16 }}>{s.icon}</div>
                   <h3 style={{ fontSize: 20, fontWeight: 800 }}>{s.title}</h3>
                 </div>
-                <div style={{ background: "#ffffff", padding: "22px 28px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div className="card-hover-body" style={{ padding: "22px 28px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                   <p style={{ color: "#730000", opacity: 0.85, lineHeight: 1.7, fontSize: 14, marginBottom: 16 }}>{s.desc}</p>
                   <span style={{ color: "#D4AF37", fontWeight: 800, fontSize: 13, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     Learn More <span className="arrow">→</span>
