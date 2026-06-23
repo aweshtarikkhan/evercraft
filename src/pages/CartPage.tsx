@@ -118,7 +118,10 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
   const fetchAddresses = async () => {
     if (!currentUser) return;
     try {
-        const res = await fetch(`${API_BASE_URL}/users/${currentUser.id}/addresses`);
+        const token = localStorage.getItem("evercraft_token");
+        const res = await fetch(`${API_BASE_URL}/users/${currentUser.id}/addresses`, {
+            headers: token ? { "Authorization": `Bearer ${token}` } : {}
+        });
         if (res.ok) {
             const data = await res.json();
             setAddresses(data);
@@ -135,9 +138,13 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
     e.preventDefault();
     if (!currentUser) return;
     try {
+      const token = localStorage.getItem("evercraft_token");
       const res = await fetch(`${API_BASE_URL}/users/${currentUser.id}/addresses`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(newAddr)
       });
       if (res.ok) {
