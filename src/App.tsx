@@ -896,15 +896,19 @@ export default function App() {
   };
 
   const handleCookieConsent = async (status: 'accepted' | 'denied') => {
-    localStorage.setItem('evercraft_cookie_consent', status);
     setShowCookieConsent(false);
+    try {
+      localStorage.setItem('evercraft_cookie_consent', status);
+    } catch (e) {
+      console.warn("Could not save to localStorage", e);
+    }
 
     try {
       await fetch(`${API_BASE_URL}/cookie-consent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          session_id: sessionId,
+          session_id: sessionId || `SESS_${Date.now()}`,
           user_id: currentUser?.id || null,
           status: status,
         }),
