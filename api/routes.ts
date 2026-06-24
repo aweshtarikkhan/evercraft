@@ -462,14 +462,19 @@ router.get('/users/:user_id/addresses', verifyToken, rlsCheck, async (req: Reque
 });
 
 router.post('/users/:user_id/addresses', verifyToken, rlsCheck, validate(AddressCreateSchema), async (req: Request, res: Response) => {
-  const userId = parseInt(req.params.user_id);
-  const { type, address, city, pincode } = req.body;
-  
-  const result = await query(
-    'INSERT INTO addresses (user_id, type, address, city, pincode) VALUES (?, ?, ?, ?, ?)',
-    [userId, type, address, city, pincode]
-  );
-  return res.json({ id: result.insertId });
+  try {
+    const userId = parseInt(req.params.user_id);
+    const { type, address, city, pincode } = req.body;
+    
+    const result = await query(
+      'INSERT INTO addresses (user_id, type, address, city, pincode) VALUES (?, ?, ?, ?, ?)',
+      [userId, type, address, city, pincode]
+    );
+    return res.json({ id: result.insertId });
+  } catch (error: any) {
+    console.error('❌ Failed to add address:', error);
+    return res.status(500).json({ detail: error.message || 'Internal Server Error' });
+  }
 });
 
 // ─── ROUTES: ORDERS ───────────────────────────────────────────────────────

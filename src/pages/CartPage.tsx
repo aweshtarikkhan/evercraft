@@ -146,10 +146,11 @@ export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUs
         showToast("✅ Address Added Successfully!");
         fetchAddresses();
       } else {
-        showToast("❌ Failed to add address. Server error.");
+        const errData = await res.json().catch(() => ({}));
+        showToast(`❌ Failed to add address: ${errData.detail || "Server error."}`);
       }
-    } catch (err) {
-      showToast("❌ Network error. Could not connect to server.");
+    } catch (err: any) {
+      showToast(`❌ Network error: ${err.message}`);
     }
   };
 
