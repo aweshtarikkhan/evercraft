@@ -756,6 +756,9 @@ export default function App() {
             if (userData && typeof userData === 'object' && userData.id) {
               setCurrentUser(userData);
               localStorage.setItem("evercraft_user", JSON.stringify(userData));
+              if (userData.token) {
+                localStorage.setItem("token", userData.token);
+              }
             }
             setToast("Logged in successfully!");
             window.history.replaceState({}, document.title, window.location.pathname);
