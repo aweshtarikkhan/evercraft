@@ -24,7 +24,9 @@ window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   // Only attach token to protected API endpoints (not public ones like /books, /front-stats, /testimonials)
   if (url.includes(API_BASE_URL)) {
     const pathAfterApi = url.split(API_BASE_URL)[1] || "";
-    const isProtected = PROTECTED_PREFIXES.some(prefix => pathAfterApi.startsWith(prefix));
+    const method = init?.method?.toUpperCase() || 'GET';
+    const isProtected = PROTECTED_PREFIXES.some(prefix => pathAfterApi.startsWith(prefix)) || 
+                        (pathAfterApi.startsWith("/books") && method !== 'GET');
     
     if (isProtected) {
       const token = localStorage.getItem('token');

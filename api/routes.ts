@@ -52,6 +52,76 @@ function getNowDateTimeString(): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+async function sendOrderConfirmationEmail(user_id: number, items: any[], subtotal: number, discount_amount: number, shipping_cost: number, final_total: number) {
+  try {
+    const userRows = await query('SELECT email, name FROM users WHERE id = ?', [user_id]);
+    if (userRows.length > 0) {
+      const userEmail = userRows[0].email;
+      const userName = userRows[0].name;
+      
+      let itemsHtml = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
+          <thead>
+            <tr style="background-color: #aa7c11; color: white; text-align: left;">
+              <th style="padding: 10px; border: 1px solid #D4AF37;">Book Title</th>
+              <th style="padding: 10px; border: 1px solid #D4AF37; text-align: right;">Price</th>
+              <th style="padding: 10px; border: 1px solid #D4AF37; text-align: center;">Qty</th>
+              <th style="padding: 10px; border: 1px solid #D4AF37; text-align: right;">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      
+      for (const item of items) {
+        itemsHtml += `
+          <tr style="background-color: white; color: #2D1B10;">
+            <td style="padding: 10px; border: 1px solid #fde68a;">${item.title}</td>
+            <td style="padding: 10px; border: 1px solid #fde68a; text-align: right;">₹${item.price}</td>
+            <td style="padding: 10px; border: 1px solid #fde68a; text-align: center;">${item.qty}</td>
+            <td style="padding: 10px; border: 1px solid #fde68a; text-align: right;">₹${item.price * item.qty}</td>
+          </tr>
+        `;
+      }
+      
+      itemsHtml += `
+          </tbody>
+        </table>
+      `;
+      
+      sendEmail({
+        to: userEmail,
+        toName: userName,
+        subject: 'Order Confirmation - EverCraft Publications 📚',
+        htmlContent: `
+          <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1.5px solid #D4AF37; border-radius: 16px; background-color: #fdf6e2; color: #2D1B10;">
+            <h2 style="color: #aa7c11; text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 20px;">Order Confirmed!</h2>
+            <p>Dear ${userName},</p>
+            <p>Thank you for your purchase from EverCraft Publications! We are pleased to confirm that we have received your order.</p>
+            
+            <h3 style="color: #aa7c11; border-bottom: 1.5px solid #fde68a; padding-bottom: 8px; margin-top: 24px;">Order Summary</h3>
+            ${itemsHtml}
+            
+            <div style="margin-top: 20px; text-align: right; font-size: 16px; font-weight: 800; color: #2D1B10;">
+              <p style="margin: 4px 0;">Subtotal: ₹${subtotal}</p>
+              ${discount_amount > 0 ? `<p style="margin: 4px 0; color: #dc2626;">Discount: -₹${discount_amount}</p>` : ''}
+              ${shipping_cost > 0 ? `<p style="margin: 4px 0;">Shipping Cost: ₹${shipping_cost}</p>` : ''}
+              <p style="margin: 8px 0 0 0; font-size: 18px; color: #aa7c11;">Total Paid: ₹${final_total}</p>
+            </div>
+            
+            <p style="margin-top: 30px;">We will process and ship your books shortly. You will receive tracking details via email once shipped.</p>
+            <p style="margin-top: 24px;">Thank you for supporting authors and literature!</p>
+            <p style="font-weight: 800; color: #aa7c11; margin: 0;">The EverCraft Team</p>
+          </div>
+        `
+      }).catch(err => console.error("Error sending order confirmation email:", err));
+    }
+  } catch (err) {
+    console.error("⚠️ Failed to process order confirmation email:", err);
+  }
+}
+
+// ─── ROUTES: AUTHENTICATION ────────────────────────────────────────────────
+
 // ─── ROUTES: USERS ────────────────────────────────────────────────────────
 
 router.post('/users/check-duplicate', validate(DuplicateCheckSchema), async (req: Request, res: Response) => {
@@ -506,71 +576,7 @@ router.post('/orders', verifyToken, validate(OrderCreateSchema), async (req: Req
     }
 
     // Send Order Confirmation Email via Brevo
-    try {
-      const userRows = await query('SELECT email, name FROM users WHERE id = ?', [user_id]);
-      if (userRows.length > 0) {
-        const userEmail = userRows[0].email;
-        const userName = userRows[0].name;
-        
-        let itemsHtml = `
-          <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-            <thead>
-              <tr style="background-color: #aa7c11; color: white; text-align: left;">
-                <th style="padding: 10px; border: 1px solid #D4AF37;">Book Title</th>
-                <th style="padding: 10px; border: 1px solid #D4AF37; text-align: right;">Price</th>
-                <th style="padding: 10px; border: 1px solid #D4AF37; text-align: center;">Qty</th>
-                <th style="padding: 10px; border: 1px solid #D4AF37; text-align: right;">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-        
-        for (const item of fullItemsDetails) {
-          itemsHtml += `
-            <tr style="background-color: white; color: #2D1B10;">
-              <td style="padding: 10px; border: 1px solid #fde68a;">${item.title}</td>
-              <td style="padding: 10px; border: 1px solid #fde68a; text-align: right;">₹${item.price}</td>
-              <td style="padding: 10px; border: 1px solid #fde68a; text-align: center;">${item.qty}</td>
-              <td style="padding: 10px; border: 1px solid #fde68a; text-align: right;">₹${item.price * item.qty}</td>
-            </tr>
-          `;
-        }
-        
-        itemsHtml += `
-            </tbody>
-          </table>
-        `;
-        
-        sendEmail({
-          to: userEmail,
-          toName: userName,
-          subject: 'Order Confirmation - EverCraft Publications 📚',
-          htmlContent: `
-            <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1.5px solid #D4AF37; border-radius: 16px; background-color: #fdf6e2; color: #2D1B10;">
-              <h2 style="color: #aa7c11; text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 20px;">Order Confirmed!</h2>
-              <p>Dear ${userName},</p>
-              <p>Thank you for your purchase from EverCraft Publications! We are pleased to confirm that we have received your order.</p>
-              
-              <h3 style="color: #aa7c11; border-bottom: 1.5px solid #fde68a; padding-bottom: 8px; margin-top: 24px;">Order Summary</h3>
-              ${itemsHtml}
-              
-              <div style="margin-top: 20px; text-align: right; font-size: 16px; font-weight: 800; color: #2D1B10;">
-                <p style="margin: 4px 0;">Subtotal: ₹${subtotal}</p>
-                ${discount_amount > 0 ? `<p style="margin: 4px 0; color: #dc2626;">Discount: -₹${discount_amount}</p>` : ''}
-                ${shipping_cost > 0 ? `<p style="margin: 4px 0;">Shipping Cost: ₹${shipping_cost}</p>` : ''}
-                <p style="margin: 8px 0 0 0; font-size: 18px; color: #aa7c11;">Total Paid: ₹${final_total}</p>
-              </div>
-              
-              <p style="margin-top: 30px;">We will process and ship your books shortly. You will receive tracking details via email once shipped.</p>
-              <p style="margin-top: 24px;">Thank you for supporting authors and literature!</p>
-              <p style="font-weight: 800; color: #aa7c11; margin: 0;">The EverCraft Team</p>
-            </div>
-          `
-        }).catch(err => console.error("Error sending order confirmation email:", err));
-      }
-    } catch (err) {
-      console.error("⚠️ Failed to process order confirmation email:", err);
-    }
+    await sendOrderConfirmationEmail(user_id, fullItemsDetails, subtotal, discount_amount, shipping_cost, final_total);
 
     return res.json({ message: 'Order created' });
   } catch (error: any) {
@@ -1281,6 +1287,9 @@ router.post('/payment/success', express.urlencoded({ extended: true }), async (r
       for (const item of items) {
         await query('UPDATE books SET stock = GREATEST(0, stock - ?) WHERE id = ?', [item.qty, item.id]);
       }
+
+      // Send Order Confirmation Email via Brevo
+      await sendOrderConfirmationEmail(user_id, items, subtotal, discount_amount, shippingCost, finalTotal);
 
       return res.redirect('/?payment=success&order_id=' + result.insertId);
     } else {
