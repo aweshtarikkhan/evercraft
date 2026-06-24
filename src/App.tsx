@@ -752,12 +752,13 @@ export default function App() {
             body: JSON.stringify({ email, name, profile_image })
           });
           if (response.ok) {
-            const userData = await response.json();
+            const data = await response.json();
+            const userData = data.user || data;
             if (userData && typeof userData === 'object' && userData.id) {
               setCurrentUser(userData);
               localStorage.setItem("evercraft_user", JSON.stringify(userData));
-              if (userData.token) {
-                localStorage.setItem("token", userData.token);
+              if (data.token) {
+                localStorage.setItem("token", data.token);
               }
             }
             setToast("Logged in successfully!");
