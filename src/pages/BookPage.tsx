@@ -50,7 +50,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
         title={`${book.title} by ${book.author} – Buy Online`}
         description={book.description?.substring(0, 155) || `Buy ${book.title} by ${book.author} at EverCraft Publications. Available on Amazon, Flipkart & direct delivery across India.`}
         keywords={`${book.title}, ${book.author}, buy ${book.title} online, ${book.genre} books India, EverCraft Publications books, ${book.language} books online`}
-        image={book.coverUrl || book.cover_image}
+        image={book.frontCover}
         url={`https://www.evercraft.co.in/book/${book.id}`}
         type="product"
         jsonLd={{
@@ -63,7 +63,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
           "inLanguage": book.language || "en",
           "genre": book.genre,
           "publisher": { "@type": "Organization", "name": book.publisher || "EverCraft Publications" },
-          "image": book.coverUrl || book.cover_image,
+          "image": book.frontCover,
           "url": `https://www.evercraft.co.in/book/${book.id}`,
           "description": book.description?.substring(0, 200),
           "offers": book.price ? {

@@ -10,7 +10,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000
 
 export function CartPage({ cart, removeFromCart, updateQty, total, go, currentUser, setCart, showToast, setLoginOpen, setDashboardOpen, setDashboardTab }: {
   cart: CartItem[]; removeFromCart: (id: number) => void;
-  updateQty: (id: number, qty: number) => void; total: number; go: (p: Page) => void; currentUser: User | null; setCart: any; showToast: (msg: string) => void; setLoginOpen: any; setDashboardOpen: (v: boolean) => void; setDashboardTab: (v: "Profile" | "Orders" | "Address" | "Password") => void;
+  updateQty: (id: number, qty: number, stock?: number) => void; total: number; go: (p: Page) => void; currentUser: User | null; setCart: any; showToast: (msg: string) => void; setLoginOpen: any; setDashboardOpen: (v: boolean) => void; setDashboardTab: (v: "Profile" | "Orders" | "Address" | "Password") => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [orderStatus, setOrderStatus] = useState<"placed" | "cancelled" | null>(null);

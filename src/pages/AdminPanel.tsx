@@ -235,7 +235,7 @@ export function AdminPanel({
     if (!isAuthenticated) return;
     const authHeaders = { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token") || ""}` };
     
-    fetch(`${API_BASE_URL}/stats`).then(r => r.ok ? r.json() : {}).then(setStats).catch(() => {});
+    fetch(`${API_BASE_URL}/stats`).then(r => r.ok ? r.json() : null).then(data => { if(data && data.total_books !== undefined) setStats(data); }).catch(() => {});
     
     if (adminTab === "users") fetch(`${API_BASE_URL}/users`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setUsers).catch(() => {});
     if (adminTab === "orders") {
@@ -287,7 +287,7 @@ export function AdminPanel({
     try {
       const res = await fetch(`${API_BASE_URL}/coupons`, {
         method: "POST",
-        headers: authHeaders,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: newCoupon.code,
           discount_type: newCoupon.discount_type,
@@ -297,7 +297,7 @@ export function AdminPanel({
       });
       if (res.ok) {
         setNewCoupon({ code: "", discount_type: "percent", discount_value: "", min_order_value: "0" });
-        fetch(`${API_BASE_URL}/coupons`, { headers: authHeaders }).then(r => r.json()).then(setCoupons);
+        fetch(`${API_BASE_URL}/coupons`).then(r => r.json()).then(setCoupons);
         alert("Coupon added successfully!");
       } else {
         const err = await res.json();

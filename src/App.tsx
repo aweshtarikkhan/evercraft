@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useLayoutEffect, FC } from "r
 import { Routes, Route, Link, useNavigate, useLocation, useParams, } from "react-router-dom";
 import { Page, Book, CartItem, User } from "./types";
 import { SOCIAL_LINKS } from "./constants/data"; 
-import { uploadImageToCloudinary } from "./utils/cloudinary";
+import { uploadImageToCloudinary, compressImage } from "./utils/cloudinary";
 import { BookCoverSVG, Logo, Toast, NewsletterSection } from "./components/common/UIComponents";
 import { HomePage } from "./pages/HomePage";
 import { ShopPage } from "./pages/ShopPage";
@@ -622,18 +622,18 @@ export default function App() {
       window.history.replaceState({}, document.title, window.location.pathname);
       
       if (paymentStatus === 'success') {
-        showToast("🎉 Payment Successful! Your order has been placed.");
+        setToast("🎉 Payment Successful! Your order has been placed.");
         setCart([]);
         localStorage.removeItem('evercraft_cart');
         setDashboardTab('Orders');
         setDashboardOpen(true);
       } else if (paymentStatus === 'cancelled') {
-        showToast("⚠️ Payment Cancelled. Your order was not completed.");
+        setToast("⚠️ Payment Cancelled. Your order was not completed.");
       } else if (paymentStatus === 'failed') {
         const msg = searchParams.get('msg') || searchParams.get('status');
-        showToast(`❌ Payment Failed. ${msg ? '(' + msg + ')' : 'Please try again.'}`);
+        setToast(`❌ Payment Failed. ${msg ? '(' + msg + ')' : 'Please try again.'}`);
       } else if (paymentStatus === 'error') {
-        showToast("❌ Payment Error. Something went wrong during processing.");
+        setToast("❌ Payment Error. Something went wrong during processing.");
       }
     }
   }, []);
