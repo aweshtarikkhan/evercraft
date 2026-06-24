@@ -50,6 +50,10 @@ export async function initDb() {
       queueLimit: 0
     });
 
+    pool.on('error', (err) => {
+      console.error('MySQL Pool Error:', err);
+    });
+
     console.log(`🔌 Connected to MySQL at ${host}:${port}/${database}`);
 
     // 3. Create tables

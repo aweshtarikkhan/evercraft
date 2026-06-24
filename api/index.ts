@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { initDb } from './config/database';
@@ -6,6 +6,14 @@ import apiRouter from './routes';
 import { checkAbandonedCarts } from './utils/cartChecker';
 
 dotenv.config();
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
 
 const app = express();
 
@@ -21,6 +29,12 @@ app.use(express.json({ limit: '50mb' })); // Support base64 image uploads
 
 // Mount endpoints under /api for consistency across local & production environments
 app.use('/api', apiRouter);
+
+// Global Error Handler to catch async errors and prevent server from stopping
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('❌ Unhandled Server Error:', err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 // Expose Vercel Cron endpoint for background cart abandonment checks
 app.get('/api/cron/check-abandoned-carts', async (req, res) => {
