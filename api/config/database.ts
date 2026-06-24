@@ -50,7 +50,7 @@ export async function initDb() {
       queueLimit: 0
     });
 
-    pool.on('error', (err) => {
+    (pool as any).on('error', (err: any) => {
       console.error('MySQL Pool Error:', err);
     });
 
