@@ -202,8 +202,32 @@ export function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, 
                         {items.map((i: any) => <div key={i.id} style={{ fontSize: 14, color: "#374151" }}>{i.qty} x {i.title}</div>)}
                         <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f9fafb", padding: 10, borderRadius: 8 }}>
                           <strong style={{ color: "#b45309" }}>Total: ₹{o.total}</strong>
-                          <span style={{ background: o.status === "Delivered" ? "#dcfce7" : "#fef3c7", color: o.status === "Delivered" ? "#16a34a" : "#d97706", padding: "4px 10px", borderRadius: 12, fontSize: 12, fontWeight: 700 }}>Track Status: {o.status}</span>
                         </div>
+                        
+                        {o.status === "Cancelled" ? (
+                          <div style={{ marginTop: 16, padding: "12px", background: "#fef2f2", color: "#b91c1c", fontWeight: 700, borderRadius: 8, textAlign: "center", border: "1px solid #f87171" }}>
+                            Order Cancelled
+                          </div>
+                        ) : (
+                          <div style={{ marginTop: 24, display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+                            <div style={{ position: "absolute", top: "14px", left: "12%", right: "12%", height: "4px", background: "#e5e7eb", zIndex: 1 }}></div>
+                            <div style={{ position: "absolute", top: "14px", left: "12%", height: "4px", background: "#16a34a", zIndex: 1, transition: "width 0.3s ease", width: `${(Math.max(0, ["Order Placed", "Shipped", "Out for Delivery", "Delivered"].indexOf(o.status || "Order Placed"))) * 33.33}%` }}></div>
+                            
+                            {["Order Placed", "Shipped", "Out for Delivery", "Delivered"].map((step, idx) => {
+                              const stepNum = idx + 1;
+                              const activeStep = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"].indexOf(o.status || "Order Placed") + 1 || 1;
+                              const isActive = activeStep >= stepNum;
+                              return (
+                                <div key={step} style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 2, width: "25%" }}>
+                                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: isActive ? "#16a34a" : "#e5e7eb", color: isActive ? "white" : "#9ca3af", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: 14, border: "4px solid #fff", boxShadow: "0 0 0 1px rgba(0,0,0,0.05)" }}>
+                                    {activeStep > stepNum || (isActive && stepNum === 4) ? "✓" : stepNum}
+                                  </div>
+                                  <span style={{ marginTop: 8, fontSize: 11, fontWeight: isActive ? 700 : 500, color: isActive ? "#16a34a" : "#9ca3af", textAlign: "center" }}>{step}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
                       </div>
                     )
                   })}

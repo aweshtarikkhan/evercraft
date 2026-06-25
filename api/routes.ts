@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from 'express';
 import { query } from './config/database';
 import { validate } from './middleware/validate';
 import { generateToken, verifyToken, rlsCheck, adminOnly } from './middleware/auth';
-import { sendEmail } from './utils/mailer';
+import { sendEmail, getOrderTrackingHTML } from './utils/mailer';
 import {
   DuplicateCheckSchema,
   UserSignupSchema,
@@ -52,6 +52,33 @@ function getNowDateTimeString(): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+async function sendOrderStatusEmail(orderId: number, status: string, userEmail: string, userName: string) {
+  try {
+    const trackingHtml = getOrderTrackingHTML(status);
+    
+    await sendEmail({
+      to: userEmail,
+      toName: userName,
+      subject: `Order Update - #${orderId} is now ${status}`,
+      htmlContent: `
+        <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1.5px solid #D4AF37; border-radius: 16px; background-color: #fdf6e2; color: #2D1B10;">
+          <h2 style="color: #aa7c11; text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 20px;">Order Update</h2>
+          <p>Dear ${userName},</p>
+          <p>The status of your EverCraft Publications order <strong>#${orderId}</strong> has been updated to: <strong>${status}</strong>.</p>
+          
+          ${trackingHtml}
+          
+          <p style="margin-top: 30px;">You can track your order at any time from your account dashboard.</p>
+          <p style="margin-top: 24px;">Thank you for supporting authors and literature!</p>
+          <p style="font-weight: 800; color: #aa7c11; margin: 0;">The EverCraft Team</p>
+        </div>
+      `
+    });
+  } catch (err) {
+    console.error("⚠️ Failed to process order status email:", err);
+  }
+}
+
 async function sendOrderConfirmationEmail(user_id: number, items: any[], subtotal: number, discount_amount: number, shipping_cost: number, final_total: number) {
   try {
     const userRows = await query('SELECT email, name FROM users WHERE id = ?', [user_id]);
@@ -88,6 +115,8 @@ async function sendOrderConfirmationEmail(user_id: number, items: any[], subtota
         </table>
       `;
       
+      const trackingHtml = getOrderTrackingHTML('Order Placed');
+      
       sendEmail({
         to: userEmail,
         toName: userName,
@@ -97,6 +126,8 @@ async function sendOrderConfirmationEmail(user_id: number, items: any[], subtota
             <h2 style="color: #aa7c11; text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 20px;">Order Confirmed!</h2>
             <p>Dear ${userName},</p>
             <p>Thank you for your purchase from EverCraft Publications! We are pleased to confirm that we have received your order.</p>
+            
+            ${trackingHtml}
             
             <h3 style="color: #aa7c11; border-bottom: 1.5px solid #fde68a; padding-bottom: 8px; margin-top: 24px;">Order Summary</h3>
             ${itemsHtml}
@@ -605,6 +636,18 @@ router.put('/orders/:order_id/status', verifyToken, adminOnly, validate(OrderSta
   const orderId = parseInt(req.params.order_id);
   const { status } = req.body;
   await query('UPDATE orders SET status=? WHERE id=?', [status, orderId]);
+  
+  // Fetch user email to send status update
+  const orderRows = await query('SELECT user_id FROM orders WHERE id=?', [orderId]);
+  if (orderRows.length > 0) {
+    const userId = orderRows[0].user_id;
+    const userRows = await query('SELECT email, name FROM users WHERE id=?', [userId]);
+    if (userRows.length > 0) {
+      // Send the status update email in the background
+      sendOrderStatusEmail(orderId, status, userRows[0].email, userRows[0].name);
+    }
+  }
+  
   return res.json({ message: 'Order status updated' });
 });
 

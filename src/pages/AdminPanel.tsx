@@ -1134,9 +1134,8 @@ export function AdminPanel({
                           fetch(`${API_BASE_URL}/orders`).then(r => r.json()).then(setOrders);
                         }} style={{ padding: "6px 10px", borderRadius: 8, border: "1.5px solid #2D1B10", outline: "none", background: "#ffffff", color: "#1c1917" }}>
                           <option>Order Placed</option>
-                          <option>Processing</option>
-                          <option>Dispatched</option>
-                          <option>In Transit</option>
+                          <option>Shipped</option>
+                          <option>Out for Delivery</option>
                           <option>Delivered</option>
                           <option>Cancelled</option>
                         </select>
@@ -1202,9 +1201,8 @@ export function AdminPanel({
                           fetch(`${API_BASE_URL}/orders`).then(r => r.json()).then(setOrders);
                         }} style={{ padding: "6px 10px", borderRadius: 8, border: "1.5px solid #2D1B10", outline: "none", background: "#ffffff", color: "#1c1917" }}>
                           <option>Order Placed</option>
-                          <option>Processing</option>
-                          <option>Dispatched</option>
-                          <option>In Transit</option>
+                          <option>Shipped</option>
+                          <option>Out for Delivery</option>
                           <option>Delivered</option>
                           <option>Cancelled</option>
                         </select>
