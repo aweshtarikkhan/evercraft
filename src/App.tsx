@@ -79,32 +79,30 @@ const NewsletterPopup: FC<{user: User, onClose: () => void, showToast: (msg: str
 
 const CookieConsentPopup: FC<{ onConsent: (status: 'accepted' | 'denied') => void }> = ({ onConsent }) => {
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{
-        maxWidth: 400, width: '100%',
-        background: '#1c1917', color: '#fff', padding: '24px', borderRadius: 16,
-        boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-        display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', textAlign: 'center'
-      }} className="animate-bounceIn">
-        <h4 style={{ fontWeight: 700, fontSize: 18, margin: 0 }}>🍪 We use cookies</h4>
-        <p style={{ fontSize: 14, color: '#a1a09f', lineHeight: 1.6, margin: 0 }}>
-          This website uses cookies to ensure you get the best experience. By continuing to use this site, you agree to our use of cookies.
-        </p>
-        <div style={{ display: 'flex', gap: 10, marginTop: 8, width: '100%' }}>
-          <button
-            onClick={() => onConsent('accepted')}
-            className="btn-primary"
-            style={{ flex: 1, padding: '10px 16px', fontSize: 14 }}
-          >
-            Accept
-          </button>
-          <button
-            onClick={() => onConsent('denied')}
-            style={{ flex: 1, background: 'rgba(255,255,255,0.1)', color: '#fff', border: 'none', borderRadius: 12, padding: '10px 16px', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}
-          >
-            Decline
-          </button>
+    <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 10000, background: "#1c1917", color: "#fff", padding: "16px 20px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, borderTop: "1px solid rgba(212, 175, 55, 0.3)", boxShadow: "0 -4px 20px rgba(0,0,0,0.2)" }} className="animate-slideUp">
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flex: "1 1 300px" }}>
+        <span style={{ fontSize: 24 }}>🍪</span>
+        <div>
+          <h4 style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>We use cookies</h4>
+          <p style={{ fontSize: 13, color: '#a1a09f', lineHeight: 1.4, margin: "4px 0 0 0" }}>
+            This website uses cookies to ensure you get the best experience. By continuing to use this site, you agree to our use of cookies.
+          </p>
         </div>
+      </div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button
+          onClick={() => onConsent('accepted')}
+          className="btn-primary"
+          style={{ padding: '8px 16px', fontSize: 13, flex: 1, whiteSpace: "nowrap" }}
+        >
+          Accept
+        </button>
+        <button
+          onClick={() => onConsent('denied')}
+          style={{ background: 'transparent', border: '1px solid #57534e', color: '#d6d3d1', padding: '8px 16px', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13, flex: 1, whiteSpace: "nowrap" }}
+        >
+          Decline
+        </button>
       </div>
     </div>
   );
@@ -792,7 +790,7 @@ export default function App() {
     } else {
       setShowCookieConsent(false);
     }
-  }, [currentUser]);
+  }, []);
 
   useEffect(() => {
     if (currentUser && 

@@ -61,6 +61,14 @@ const bookSlideVariants = {
   })
 };
 
+const optimizeImage = (url: string, width = 600) => {
+  if (!url) return url;
+  if (url.includes('res.cloudinary.com') && !url.includes('/c_scale,')) {
+    return url.replace('/image/upload/', `/image/upload/c_scale,w_${width},q_auto,f_auto/`);
+  }
+  return url;
+};
+
 const HERO_TAGLINES = [
     { 
       title: "Crafting Every Word Into A *Masterpiece*", 
@@ -188,8 +196,8 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                         </div>
                         
                         <motion.div variants={fadeInUp} style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 12, alignItems: "center" }}>
-                            <button className="btn-primary" onClick={() => go("shop")} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>Browse Books <span style={{ fontSize: 14 }}>→</span></button>
-                            <button className="btn-outline" onClick={() => go("publish")} style={{ border: "2px solid #D4AF37", color: "#ffffff", background: "transparent" }}
+                            <button aria-label="Browse Books" className="btn-primary" onClick={() => go("shop")} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>Browse Books <span style={{ fontSize: 14 }}>→</span></button>
+                            <button aria-label="Publish With Us" className="btn-outline" onClick={() => go("publish")} style={{ border: "2px solid #D4AF37", color: "#ffffff", background: "transparent" }}
                                     onMouseEnter={e => e.currentTarget.style.background = "rgba(212, 175, 55, 0.1)"}
                                     onMouseLeave={e => e.currentTarget.style.background = "transparent"}>Publish With Us</button>
                         </motion.div>
@@ -199,6 +207,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                             {currentHeroTaglines.map((_, idx) => (
                                 <button
                                     key={idx}
+                                    aria-label={`Go to slide ${idx + 1}`}
                                     onClick={() => setTaglineIndex(idx)}
                                     style={{
                                         width: idx === taglineIndex ? 36 : 12,
@@ -251,7 +260,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                 }}>
                                     {heroBook.frontCover ? (
                                         <img 
-                                            src={heroBook.frontCover} 
+                                            src={optimizeImage(heroBook.frontCover)} 
                                             alt={heroBook.title} 
                                             style={{
                                                 maxWidth: "100%",
@@ -407,9 +416,10 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                             />
                             <select 
                                 required
+                                aria-label="Country"
                                 value={formData.country}
                                 onChange={e => setFormData({...formData, country: e.target.value})}
-                                style={{ flex: "1 1 150px", padding: "14px 20px", borderRadius: 8, border: "1px solid rgba(115,0,0,0.1)", fontSize: 14, outline: "none", background: "#FAF5EF", color: formData.country ? "#1c1917" : "#6b7280" }}
+                                style={{ flex: "1 1 150px", padding: "14px 20px", borderRadius: 8, border: "1.5px solid rgba(115,0,0,0.15)", background: "#ffffff", outline: "none", color: formData.country ? "#1c1917" : "#6b7280" }}
                             >
                                 <option value="" disabled>Country</option>
                                 <option value="India">India</option>
@@ -454,7 +464,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
             <section style={{ padding: "80px 24px", background: "#FAF5EF" }}>
                 <div style={{ maxWidth: 1100, margin: "0 auto" }}>
                     <div style={{ textAlign: "center", marginBottom: 56 }}>
-                        <span className="section-badge" style={{ color: "#D4AF37" }}>Top Choice</span>
+                        <span className="section-badge" style={{ color: "#aa7c11" }}>Top Choice</span>
                         <h2 className="section-title" style={{ color: "#730000", marginTop: 4 }}>
                             <WordReveal text="Our Best-Selling Book" once={true} />
                         </h2>
@@ -502,7 +512,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                         <div style={{ position: "absolute", inset: -12, background: "radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%)", filter: "blur(12px)" }} />
                                         <div style={{ transition: "transform 0.3s" }} onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.03)")} onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
                                             {bestsellerBook.frontCover ? (
-                                                <img src={bestsellerBook.frontCover} alt={bestsellerBook.title} style={{ width: 290, height: 410, borderRadius: 8, filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.15))", objectFit: "cover", background: "#f3f4f6" }} />
+                                                <img src={optimizeImage(bestsellerBook.frontCover)} alt={bestsellerBook.title} style={{ width: 290, height: 410, borderRadius: 8, filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.15))", objectFit: "cover", background: "#f3f4f6" }} />
                                             ) : (
                                                 <div style={{ width: 290, height: 410, borderRadius: 8, background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.15))", color: "#9ca3af", fontWeight: 700 }}>No Cover</div>
                                             )}
@@ -733,7 +743,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                         variants={fadeInUp}
                         style={{ textAlign: "center", marginBottom: 56 }}
                     >
-                        <span className="section-badge" style={{ color: "#D4AF37" }}>Author & Readers Stories</span>
+                        <span className="section-badge" style={{ color: "#aa7c11" }}>Author & Readers Stories</span>
                         <h2 className="section-title" style={{ color: "#ffffff", marginTop: 4 }}><WordReveal text="What they _say_" wordClassName="text-white" /></h2>
                     </motion.div>
 
