@@ -50,16 +50,31 @@ export function Toast({ msg, onClose }: { msg: string; onClose: () => void }) {
     const t = setTimeout(onClose, 3000);
     return () => clearTimeout(t);
   }, [onClose]);
+
+  const isError = msg.includes("❌") || msg.toLowerCase().includes("error") || msg.toLowerCase().includes("failed");
+  const isWarning = msg.includes("⚠️");
+  const isInfo = msg.includes("⏳") || msg.includes("📱") || msg.includes("✉️") || msg.includes("👍");
+
+  let background = "linear-gradient(135deg, #065f46, #047857)"; // Success Green
+  if (isError) background = "linear-gradient(135deg, #991b1b, #7f1d1d)"; // Error Red
+  else if (isWarning) background = "linear-gradient(135deg, #b45309, #92400e)"; // Warning Orange
+  else if (isInfo) background = "linear-gradient(135deg, #1e3a8a, #1e40af)"; // Info Blue
+
+  // Extract the first emoji if it exists, otherwise use a default based on the type
+  const match = msg.match(/^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)\s*(.*)/u);
+  const icon = match ? match[1] : (isError ? "❌" : (isWarning ? "⚠️" : (isInfo ? "ℹ️" : "✅")));
+  const text = match ? match[2] : msg;
+
   return (
     <div className="animate-bounceIn" style={{
       position: "fixed", top: 80, left: "50%", transform: "translateX(-50%)", zIndex: 9999,
-      background: "linear-gradient(135deg, #065f46, #047857)",
+      background,
       color: "white", padding: "14px 20px", borderRadius: 14,
       boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
       display: "flex", alignItems: "center", gap: 10, maxWidth: 340
     }}>
-      <span style={{ fontSize: 20 }}>✅</span>
-      <span style={{ fontWeight: 600, fontSize: 14, flex: 1 }}>{msg}</span>
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      <span style={{ fontWeight: 600, fontSize: 14, flex: 1 }}>{text}</span>
       <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.8)", cursor: "pointer", fontSize: 16, padding: 0 }}>✕</button>
     </div>
   );

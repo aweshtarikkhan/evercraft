@@ -57,7 +57,7 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
           showToast(`❌ Supabase Signup Error: ${error.message}`);
         } else {
           setOtpSent(true);
-          showToast("📱 Verification code sent to your email via Supabase!");
+          showToast("📱 Verification code sent to your email successfully!");
         }
       } catch (err) {
         showToast("❌ Failed to connect to Supabase!");
@@ -105,8 +105,11 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
         });
         
         if (!signupReq.ok) {
-          showToast("❌ Server Error: Unable to create account.");
-          return;
+          if (signupReq.status !== 409) {
+            showToast("❌ Server Error: Unable to create account.");
+            return;
+          }
+          // If status is 409 (Account already exists), we just proceed to login since OTP was verified.
         }
 
         // Auto login after signup
@@ -158,7 +161,7 @@ export function LoginModal({ onClose, showToast, go, setCurrentUser }: { onClose
           showToast(`❌ Supabase OTP Error: ${error.message}`);
         } else {
           setOtpSent(true);
-          showToast("📱 Reset code sent to your email via Supabase!");
+          showToast("📱 Reset code sent to your email successfully!");
         }
       } catch (err) {
         showToast("❌ Failed to connect to Supabase!");
