@@ -12,7 +12,7 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
   const freeBooks = books.filter(b => b.price === 0);
 
   // Determine active index
-  const initialIndex = freeBooks.findIndex(b => b.slug === slug);
+  const initialIndex = freeBooks.findIndex(b => b.slug === slug || String(b.id) === slug);
   const activeIndex = initialIndex !== -1 ? initialIndex : 0;
   const activeBook = freeBooks[activeIndex];
 
@@ -30,14 +30,14 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
     if (freeBooks.length <= 1) return;
     setDirection(1);
     const nextIndex = (activeIndex + 1) % freeBooks.length;
-    navigate(`/read/${freeBooks[nextIndex].slug}`);
+    navigate(`/read/${freeBooks[nextIndex].slug || freeBooks[nextIndex].id}`);
   };
 
   const handlePrevBook = () => {
     if (freeBooks.length <= 1) return;
     setDirection(-1);
     const prevIndex = (activeIndex - 1 + freeBooks.length) % freeBooks.length;
-    navigate(`/read/${freeBooks[prevIndex].slug}`);
+    navigate(`/read/${freeBooks[prevIndex].slug || freeBooks[prevIndex].id}`);
   };
 
   // Keyboard navigation

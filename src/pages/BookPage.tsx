@@ -207,7 +207,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
               </>
             ) : book.price === 0 ? (
               <div style={{ display: "flex", gap: 14, width: "100%" }}>
-                <Link to={`/read/${book.slug}`} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669", borderRadius: 12 }}>📖 Read Now for Free</Link>
+                <Link to={`/read/${book.slug || book.id}`} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669", borderRadius: 12 }}>📖 Read Now for Free</Link>
               </div>
             ) : (
               <div style={{ display: "flex", gap: 14, width: "100%" }}>
