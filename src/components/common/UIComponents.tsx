@@ -163,8 +163,20 @@ export function NotifyMeButton({ bookId, style, className }: { bookId: number; s
   const [loading, setLoading] = useState(false);
 
   const handleNotify = async () => {
-    const email = prompt("Enter your email address to get notified:");
-    if (!email) return;
+    let email = "";
+    try {
+      const userStr = localStorage.getItem("evercraft_user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user && user.email) email = user.email;
+      }
+    } catch (e) {}
+
+    if (!email) {
+      const input = prompt("Enter your email address to get notified:");
+      if (!input) return;
+      email = input;
+    }
 
     setLoading(true);
     try {
