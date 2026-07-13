@@ -1045,25 +1045,44 @@ router.put('/books/:id', verifyToken, adminOnly, validate(BookCreateSchema), asy
   
   // If it transitioned from upcoming to available, send emails
   if (wasUpcoming && (!is_upcoming || available)) {
-    const notifications = await query('SELECT user_email FROM book_notifications WHERE book_id = ?', [bookId]);
-    if (notifications.length > 0) {
-      for (const notif of notifications) {
-        await sendEmail({
-          to: notif.user_email,
-          subject: `${title} is Now Available!`,
-          htmlContent: `<div style="font-family: sans-serif; padding: 20px;">
-            <h2 style="color: #730000;">Great News!</h2>
-            <p>Hi there,</p>
-            <p>The wait is over! <strong>${title}</strong> is now officially available for purchase.</p>
-            <p>Visit our website to secure your copy today.</p>
-            <br/>
-            <p>Best regards,</p>
-            <p><strong>EverCraft Publications</strong></p>
-          </div>`
-        });
+    console.log(`🔄 Book ${bookId} transitioned from upcoming to available. Checking notifications...`);
+    try {
+      const notifications = await query('SELECT user_email FROM book_notifications WHERE book_id = ?', [bookId]);
+      console.log(`📋 Found ${notifications.length} subscribers for book ${bookId}`);
+      if (notifications.length > 0) {
+        for (const notif of notifications) {
+          console.log(`📧 Sending "now available" email to ${notif.user_email}...`);
+          const sent = await sendEmail({
+            to: notif.user_email,
+            subject: `🎉 ${title} is Now Available for Purchase!`,
+            htmlContent: `<div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+              <div style="background: linear-gradient(135deg, #730000, #4a0000); padding: 32px; text-align: center;">
+                <h1 style="color: #D4AF37; margin: 0; font-size: 24px;">EverCraft Publications</h1>
+              </div>
+              <div style="padding: 32px;">
+                <h2 style="color: #730000; margin-top: 0;">Great News! 🎉</h2>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi there,</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">The wait is over! <strong style="color: #730000;">${title}</strong> is now officially available for purchase.</p>
+                <div style="text-align: center; margin: 28px 0;">
+                  <a href="https://evercraft.co.in/shop" style="background: #730000; color: #ffffff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">🛒 Buy Now</a>
+                </div>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Visit our website to secure your copy today!</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Best regards,<br/><strong style="color: #730000;">EverCraft Publications Team</strong></p>
+              </div>
+              <div style="background: #1C1917; padding: 20px; text-align: center;">
+                <p style="color: #999; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} EverCraft Publications. All rights reserved.</p>
+                <p style="color: #D4AF37; font-size: 12px; margin: 8px 0 0 0;">www.evercraft.co.in</p>
+              </div>
+            </div>`
+          });
+          console.log(sent ? `✅ Email sent to ${notif.user_email}` : `❌ Failed to send to ${notif.user_email}`);
+        }
+        // Clean up notifications so we don't email them again
+        await query('DELETE FROM book_notifications WHERE book_id = ?', [bookId]);
+        console.log(`🗑️ Cleaned up notification entries for book ${bookId}`);
       }
-      // Clean up notifications so we don't email them again
-      await query('DELETE FROM book_notifications WHERE book_id = ?', [bookId]);
+    } catch (notifErr: any) {
+      console.error('⚠️ Error processing availability notifications:', notifErr.message);
     }
   }
 
@@ -1077,35 +1096,80 @@ router.delete('/books/:id', verifyToken, adminOnly, async (req: Request, res: Re
 });
 
 router.post('/books/:id/notify', async (req: Request, res: Response) => {
-  const bookId = parseInt(req.params.id);
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email is required' });
+  try {
+    const bookId = parseInt(req.params.id);
+    const { email } = req.body;
+    console.log(`📬 Notify request received - Book ID: ${bookId}, Email: ${email}`);
 
-  const books = await query('SELECT title FROM books WHERE id = ?', [bookId]);
-  if (books.length === 0) return res.status(404).json({ error: 'Book not found' });
-  const bookTitle = books[0].title;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
 
-  await query(
-    'INSERT INTO book_notifications (book_id, user_email) VALUES (?, ?)',
-    [bookId, email]
-  );
+    const books = await query('SELECT title FROM books WHERE id = ?', [bookId]);
+    if (books.length === 0) return res.status(404).json({ error: 'Book not found' });
+    const bookTitle = books[0].title;
 
-  // Send Thank you email
-  await sendEmail({
-    to: email,
-    subject: `You're on the list for ${bookTitle}!`,
-    htmlContent: `<div style="font-family: sans-serif; padding: 20px;">
-      <h2 style="color: #730000;">Thank You for Your Interest!</h2>
-      <p>Hi there,</p>
-      <p>Thank you for showing interest in our upcoming release: <strong>${bookTitle}</strong>.</p>
-      <p>We've added your email to our notification list. As soon as the book becomes available for purchase, you will be the first to know!</p>
-      <br/>
-      <p>Best regards,</p>
-      <p><strong>EverCraft Publications</strong></p>
-    </div>`
-  });
+    // Ensure the book_notifications table exists
+    await query(`
+      CREATE TABLE IF NOT EXISTS book_notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        book_id INT NOT NULL,
+        user_email VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_notification (book_id, user_email)
+      )
+    `);
 
-  return res.json({ message: 'Notification subscription successful' });
+    // Insert notification (ignore if already subscribed)
+    try {
+      await query(
+        'INSERT INTO book_notifications (book_id, user_email) VALUES (?, ?)',
+        [bookId, email]
+      );
+      console.log(`✅ Notification saved to DB for ${email} on book ${bookId}`);
+    } catch (dbErr: any) {
+      if (dbErr.code === 'ER_DUP_ENTRY') {
+        console.log(`ℹ️ ${email} already subscribed for book ${bookId}, sending email anyway`);
+      } else {
+        console.error('⚠️ DB insert error (non-fatal, still sending email):', dbErr.message);
+      }
+    }
+
+    // Send Thank you email regardless of DB result
+    console.log(`📧 Sending thank-you email to ${email} via Resend...`);
+    const emailSent = await sendEmail({
+      to: email,
+      subject: `You're on the list for ${bookTitle}!`,
+      htmlContent: `<div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <div style="background: linear-gradient(135deg, #730000, #4a0000); padding: 32px; text-align: center;">
+          <h1 style="color: #D4AF37; margin: 0; font-size: 24px;">EverCraft Publications</h1>
+        </div>
+        <div style="padding: 32px;">
+          <h2 style="color: #730000; margin-top: 0;">Thank You for Your Interest! 🎉</h2>
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">Hi there,</p>
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">Thank you for showing interest in our upcoming release: <strong style="color: #730000;">${bookTitle}</strong>.</p>
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">We've added your email to our notification list. As soon as the book becomes available for purchase, you will be the <strong>first to know!</strong></p>
+          <div style="background: #FAF5EF; border-left: 4px solid #D4AF37; padding: 16px; margin: 24px 0; border-radius: 4px;">
+            <p style="margin: 0; color: #5c3a21; font-size: 14px;">📚 You'll receive an email the moment <strong>${bookTitle}</strong> is ready for purchase.</p>
+          </div>
+          <p style="color: #333; font-size: 16px; line-height: 1.6;">Best regards,<br/><strong style="color: #730000;">EverCraft Publications Team</strong></p>
+        </div>
+        <div style="background: #1C1917; padding: 20px; text-align: center;">
+          <p style="color: #999; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} EverCraft Publications. All rights reserved.</p>
+          <p style="color: #D4AF37; font-size: 12px; margin: 8px 0 0 0;">www.evercraft.co.in</p>
+        </div>
+      </div>`
+    });
+
+    if (emailSent) {
+      console.log(`✅ Thank-you email sent successfully to ${email}`);
+    } else {
+      console.error(`❌ Failed to send thank-you email to ${email}`);
+    }
+
+    return res.json({ message: 'Notification subscription successful', emailSent });
+  } catch (err: any) {
+    console.error('❌ Notify route fatal error:', err);
+    return res.status(500).json({ error: 'Internal server error', details: err.message });
+  }
 });
 
 router.post('/books/hero/:book_id', verifyToken, adminOnly, async (req: Request, res: Response) => {

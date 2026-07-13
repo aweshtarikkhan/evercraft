@@ -185,13 +185,20 @@ export function NotifyMeButton({ bookId, style, className }: { bookId: number; s
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
+      const data = await resp.json().catch(() => ({}));
       if (resp.ok) {
-        alert("You have been added to the notification list!");
+        if (data.emailSent) {
+          alert("✅ You're on the list! A confirmation email has been sent to " + email);
+        } else {
+          alert("✅ You're on the list! You'll be notified when the book is available.");
+        }
       } else {
-        alert("Failed to subscribe. Please try again.");
+        console.error("Notify error:", data);
+        alert("❌ Failed to subscribe: " + (data.details || data.error || "Please try again."));
       }
     } catch (e) {
-      alert("An error occurred. Please try again.");
+      console.error("Notify network error:", e);
+      alert("❌ An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
