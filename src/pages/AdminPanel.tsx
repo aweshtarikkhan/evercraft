@@ -660,7 +660,7 @@ export function AdminPanel({
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 32 }}>
               <div style={adminCardStyle}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Upcoming Book on Homepage</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Hero Section</h3>
                 <select id="heroSelect" key={books.find(b => b.is_hero)?.id || "h"} defaultValue={books.find(b => b.is_hero)?.id || ""} style={adminSelectStyle}>
                   <option value="" disabled>Select a book</option>
                   {books.map(b => <option key={b.id} value={b.id}>{b.title}</option>)}
@@ -670,9 +670,9 @@ export function AdminPanel({
                   if (id) {
                     await fetch(`${API_BASE_URL}/books/hero/${id}`, { method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token") || ""}` } });
                     await refreshBooks();
-                    alert("Upcoming book updated successfully!");
+                    alert("Hero book updated successfully!");
                   }
-                }} className="btn-primary" style={{ marginTop: 12, padding: "8px 16px" }}>Update Upcoming Book</button>
+                }} className="btn-primary" style={{ marginTop: 12, padding: "8px 16px" }}>Update Hero Book</button>
               </div>
               <div style={adminCardStyle}>
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Best Selling Section</h3>
@@ -1593,7 +1593,10 @@ export function AdminPanel({
                 const method = editingBook ? "PUT" : "POST";
                 const response = await fetch(url, {
                   method,
-                  headers: { "Content-Type": "application/json" },
+                  headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+                  },
                   body: JSON.stringify(payload)
                 });
 

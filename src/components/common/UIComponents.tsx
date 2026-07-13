@@ -51,7 +51,7 @@ export function Toast({ msg, onClose }: { msg: string; onClose: () => void }) {
     return () => clearTimeout(t);
   }, [onClose]);
 
-  const isError = msg.includes("❌") || msg.toLowerCase().includes("error") || msg.toLowerCase().includes("failed");
+  const isError = msg.includes("❌") || msg.toLowerCase().includes("error") || msg.toLowerCase().includes("failed") || msg.toLowerCase().includes("invalid");
   const isWarning = msg.includes("⚠️");
   const isInfo = msg.includes("⏳") || msg.includes("📱") || msg.includes("✉️") || msg.includes("👍");
 
