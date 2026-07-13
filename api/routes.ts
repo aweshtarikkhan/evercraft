@@ -485,6 +485,45 @@ router.get('/users/:user_id/cart', verifyToken, rlsCheck, async (req: Request, r
   }
 });
 
+router.post('/users/:user_id/wishlist', verifyToken, rlsCheck, async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.user_id);
+    const { items } = req.body; // JSON array of items as string
+    
+    if (isNaN(userId)) {
+      return res.status(400).json({ detail: 'Invalid user ID' });
+    }
+    
+    await query(
+      'INSERT INTO wishlists (user_id, items) VALUES (?, ?) ON DUPLICATE KEY UPDATE items = ?',
+      [userId, items, items]
+    );
+    
+    return res.json({ message: 'Wishlist synced successfully' });
+  } catch (err: any) {
+    console.error("❌ Sync Wishlist Error:", err);
+    return res.status(500).json({ detail: err.message || 'Internal Server Error' });
+  }
+});
+
+router.get('/users/:user_id/wishlist', verifyToken, rlsCheck, async (req: Request, res: Response) => {
+  try {
+    const userId = parseInt(req.params.user_id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ detail: 'Invalid user ID' });
+    }
+    
+    const wishlists = await query('SELECT items FROM wishlists WHERE user_id = ?', [userId]);
+    if (wishlists.length > 0) {
+      return res.json({ items: wishlists[0].items });
+    }
+    return res.json({ items: "[]" });
+  } catch (err: any) {
+    console.error("❌ Fetch Wishlist Error:", err);
+    return res.status(500).json({ detail: err.message || 'Internal Server Error' });
+  }
+});
+
 // ─── ROUTES: ADDRESSES ────────────────────────────────────────────────────
 
 router.get('/users/:user_id/addresses', verifyToken, rlsCheck, async (req: Request, res: Response) => {

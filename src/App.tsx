@@ -156,7 +156,7 @@ function ImageCropperModal({ imageSrc, onCrop, onCancel }: { imageSrc: string, o
 }
 
 // ─── USER DASHBOARD MODAL ────────────────────────────────────────────────────
-function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToast }: { tab: string, currentUser: User, setCurrentUser: (u: User) => void, onClose: () => void, showToast: (msg: string) => void }) {
+function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToast, books, wishlist, toggleWishlist, addToCart }: { tab: string, currentUser: User, setCurrentUser: (u: User) => void, onClose: () => void, showToast: (msg: string) => void, books: Book[], wishlist: number[], toggleWishlist: (id: number) => void, addToCart: (b: Book) => void }) {
   const [activeTab, setActiveTab] = useState(tab);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -312,7 +312,7 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
        {/* Sidebar */}
        <div className="user-dashboard-sidebar" style={{ width: 200, background: "#1C1109", borderRight: "1.5px solid rgba(212, 175, 55, 0.15)", padding: 20, display: "flex", flexDirection: "column", flexShrink: 0 }}>
           <h3 style={{ fontSize: 18, fontWeight: 900, marginBottom: 20, color: "#D4AF37" }}>My Account</h3>
-          {["Profile", "Orders", "Address", "Password"].map(t => (
+          {["Profile", "Orders", "Address", "Password", "Wishlist"].map(t => (
             <button key={t} onClick={() => setActiveTab(t)} style={{ width: "100%", textAlign: "left", padding: "12px 14px", border: "none", borderRadius: 10, background: activeTab === t ? "#D4AF37" : "transparent", color: activeTab === t ? "#1C1109" : "#FAF5EF", fontWeight: 700, cursor: "pointer", marginBottom: 6, transition: "all 0.2s" }}>
               {t === "Orders" ? "My Orders" : t === "Address" ? "My Addresses" : t === "Password" ? "Change Password" : t}
             </button>
@@ -333,7 +333,7 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
 
           {mobileMenuOpen && (
             <div className="animate-slideDown" style={{ position: 'absolute', top: 75, left: 20, right: 20, background: '#1C1109', zIndex: 20, borderRadius: 16, boxShadow: '0 10px 30px rgba(0,0,0,0.4)', border: '1.5px solid rgba(212, 175, 55, 0.25)', padding: 12 }}>
-              {["Profile", "Orders", "Address", "Password"].map(t => (
+              {["Profile", "Orders", "Address", "Password", "Wishlist"].map(t => (
                 <button key={t} onClick={() => { setActiveTab(t); setMobileMenuOpen(false); }} style={{ width: "100%", textAlign: "left", padding: "12px 14px", border: "none", borderRadius: 10, background: activeTab === t ? "#D4AF37" : "transparent", color: activeTab === t ? "#1C1109" : "#FAF5EF", fontWeight: 700, cursor: "pointer", marginBottom: 2, transition: "all 0.2s" }}>
                   {t === "Orders" ? "My Orders" : t === "Address" ? "My Addresses" : t === "Password" ? "Change Password" : t}
                 </button>
@@ -466,6 +466,39 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
               </form>
             </div>
           )}
+
+          {activeTab === "Wishlist" && (
+            <div>
+              <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, color: "#FAF5EF" }}>My Wishlist</h2>
+              {wishlist.length === 0 ? <p style={{ color: "#E6D5C3" }}>Your wishlist is empty.</p> : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+                  {wishlist.map(id => {
+                    const b = books.find((book: Book) => book.id === id);
+                    if (!b) return null;
+                    return (
+                      <div key={b.id} style={{ border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: 12, overflow: "hidden", background: "rgba(28, 17, 9, 0.5)", display: "flex", flexDirection: "column" }}>
+                        <div style={{ padding: 12, flex: 1 }}>
+                          <img src={b.cover_image} alt={b.title} style={{ width: "100%", height: 200, objectFit: "cover", borderRadius: 8, marginBottom: 12 }} />
+                          <h4 style={{ margin: "0 0 4px 0", fontSize: 14, color: "#FAF5EF" }}>{b.title}</h4>
+                          <p style={{ margin: 0, fontSize: 12, color: "#D4AF37", fontWeight: 700 }}>₹{b.price}</p>
+                        </div>
+                        <div style={{ padding: 12, paddingTop: 0, display: "flex", gap: 8 }}>
+                          <button onClick={() => toggleWishlist(b.id)} style={{ padding: 8, background: "transparent", border: "1px solid #dc2626", color: "#dc2626", borderRadius: 8, cursor: "pointer", flexShrink: 0 }} title="Remove from wishlist">🗑️</button>
+                          {b.is_upcoming ? (
+                            <span style={{ flex: 1, padding: 8, fontSize: 12, textAlign: "center", color: "#E6D5C3", fontStyle: "italic", border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: 8 }}>Upcoming</span>
+                          ) : b.price === 0 ? (
+                            <button onClick={() => { window.location.href = `/read/${b.slug || b.id}`; }} className="btn-primary" style={{ flex: 1, padding: 8, fontSize: 12 }}>Read Free</button>
+                          ) : (
+                            <button onClick={() => { addToCart(b); toggleWishlist(b.id); }} className="btn-primary" style={{ flex: 1, padding: 8, fontSize: 12 }}>Move to Cart</button>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -554,20 +587,20 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
 }
 
 // ─── BOOK PAGE WRAPPER ────────────────────────────────────────────────────────
-function BookPageWrapper({ books, addToCart, go }: { books: Book[], addToCart: (b: Book) => void, go: (p: Page | string) => void }) {
+function BookPageWrapper({ books, addToCart, go, wishlist, toggleWishlist }: { books: Book[], addToCart: (b: Book) => void, go: (p: Page | string) => void, wishlist: number[], toggleWishlist: (id: number) => void }) {
   const { slug } = useParams();
   // Ensure that "undefined" string doesn't match if we don't have a book with slug "undefined"
   const book = books.find(b => b.slug === slug || String(b.id) === slug);
   if (!book) return <div style={{ padding: "100px 24px", textAlign: "center", fontSize: 20 }}>Book not found!</div>;
-  return <BookPage book={book} addToCart={addToCart} go={go as any} />;
+  return <BookPage book={book} addToCart={addToCart} go={go as any} wishlist={wishlist} toggleWishlist={toggleWishlist} />;
 }
 
-function BookIdRedirectWrapper({ books, addToCart, go }: any) {
+function BookIdRedirectWrapper({ books, addToCart, go, wishlist, toggleWishlist }: any) {
   const { id } = useParams();
   const book = books.find((b: Book) => String(b.id) === id);
   if (!book) return <div style={{ padding: "100px 24px", textAlign: "center", fontSize: 20 }}>Book not found!</div>;
   if (book.slug) return <Navigate to={`/book/${book.slug}`} replace />;
-  return <BookPage book={book} addToCart={addToCart} go={go as any} />;
+  return <BookPage book={book} addToCart={addToCart} go={go as any} wishlist={wishlist} toggleWishlist={toggleWishlist} />;
 }
 
 function FreeReaderIdRedirectWrapper({ books }: { books: Book[] }) {
@@ -588,6 +621,13 @@ export default function App() {
     } catch (e) { localStorage.removeItem("evercraft_cart"); }
     return [];
   });
+  const [wishlist, setWishlist] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem("evercraft_wishlist");
+      if (saved && saved !== "undefined" && saved !== "null") return JSON.parse(saved);
+    } catch (e) { localStorage.removeItem("evercraft_wishlist"); }
+    return [];
+  });
   const [selectedBook, setSelectedBook] = useState<Book | null>(() => {
     try {
       const saved = sessionStorage.getItem("evercraft_selectedBook");
@@ -605,7 +645,7 @@ export default function App() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [dashboardOpen, setDashboardOpen] = useState(false);
-  const [dashboardTab, setDashboardTab] = useState<"Profile"|"Orders"|"Address"|"Password">("Profile");
+  const [dashboardTab, setDashboardTab] = useState<"Profile"|"Orders"|"Address"|"Password"|"Wishlist">("Profile");
   const [frontStats, setFrontStats] = useState<any>({ books_published: "0", happy_readers: "500+", cities_reached: "10+", sales_platforms: "2" });
   const [settings, setSettings] = useState<any>({
     contact_email: "info@evercraft.co.in",
@@ -669,6 +709,21 @@ export default function App() {
   }, [cart, currentUser]);
 
   useEffect(() => {
+    try {
+      localStorage.setItem("evercraft_wishlist", JSON.stringify(wishlist));
+      if (currentUser) {
+        fetch(`${API_BASE_URL}/users/${currentUser.id}/wishlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: JSON.stringify(wishlist) })
+        }).catch(err => console.error("Error syncing wishlist to database:", err));
+      }
+    } catch (err) {
+      console.warn("Storage Full: Cannot save wishlist to local storage", err);
+    }
+  }, [wishlist, currentUser]);
+
+  useEffect(() => {
     if (currentUser) {
       fetch(`${API_BASE_URL}/users/${currentUser.id}/cart`)
         .then(res => {
@@ -688,6 +743,25 @@ export default function App() {
           }
         })
         .catch(err => console.error("Error fetching cart from database:", err));
+
+      fetch(`${API_BASE_URL}/users/${currentUser.id}/wishlist`)
+        .then(res => {
+          if (!res.ok) throw new Error(`Wishlist fetch failed: ${res.status}`);
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.items) {
+            try {
+              const dbItems = JSON.parse(data.items);
+              if (Array.isArray(dbItems) && dbItems.length > 0) {
+                setWishlist(dbItems);
+              }
+            } catch (e) {
+              console.error("Failed to parse wishlist items:", e);
+            }
+          }
+        })
+        .catch(err => console.error("Error fetching wishlist from database:", err));
     }
   }, [currentUser]);
 
@@ -890,6 +964,19 @@ export default function App() {
     setCart(p => p.map(i => i.id === id ? { ...i, qty } : i));
   }, [removeFromCart]);
 
+  const toggleWishlist = useCallback((bookId: number) => {
+    setWishlist(prev => {
+      const isWishlisted = prev.includes(bookId);
+      if (isWishlisted) {
+        setToast("Removed from wishlist");
+        return prev.filter(id => id !== bookId);
+      } else {
+        setToast("❤️ Added to wishlist");
+        return [...prev, bookId];
+      }
+    });
+  }, []);
+
   const openBook = useCallback((book: Book) => {
     navigate(`/book/${book.slug || book.id}`);
   }, [navigate]);
@@ -1073,16 +1160,16 @@ export default function App() {
       {/* ── PAGES ── */}
       <main style={{ paddingTop: !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/read') ? 64 : 0 }}>
         <Routes>
-          <Route path="/" element={<HomePage go={go as any} addToCart={addToCart} openBook={openBook} books={books} frontStats={frontStats} testimonials={testimonials} />} />
-          <Route path="/shop" element={<ShopPage search={search} setSearch={setSearch} filtered={filtered} addToCart={addToCart} openBook={openBook} />} />
+          <Route path="/" element={<HomePage go={go as any} addToCart={addToCart} openBook={openBook} books={books} frontStats={frontStats} testimonials={testimonials} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/shop" element={<ShopPage search={search} setSearch={setSearch} filtered={filtered} addToCart={addToCart} openBook={openBook} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/services" element={<ServicesPage go={go as any} />} />
           <Route path="/services/:slug" element={<ServiceDetailPage />} />
           <Route path="/about" element={<AboutPage go={go as any} />} />
           <Route path="/publish" element={<PublishPage settings={settings} />} />
           <Route path="/contact" element={<ContactPage settings={settings} />} />
           <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} updateQty={updateQty} total={cartTotal} go={go as any} currentUser={currentUser} setCart={setCart} showToast={setToast} setLoginOpen={setLoginOpen} setDashboardOpen={setDashboardOpen} setDashboardTab={setDashboardTab} />} />
-          <Route path="/book/:slug" element={<BookPageWrapper books={books} addToCart={addToCart} go={go} />} />
-          <Route path="/book/:id(\d+)" element={<BookIdRedirectWrapper books={books} addToCart={addToCart} go={go} />} />
+          <Route path="/book/:slug" element={<BookPageWrapper books={books} addToCart={addToCart} go={go} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
+          <Route path="/book/:id(\d+)" element={<BookIdRedirectWrapper books={books} addToCart={addToCart} go={go} wishlist={wishlist} toggleWishlist={toggleWishlist} />} />
           <Route path="/read/:slug" element={<FreeReaderPage books={books} />} />
           <Route path="/read/:id(\d+)" element={<FreeReaderIdRedirectWrapper books={books} />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -1099,7 +1186,7 @@ export default function App() {
       {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/read') && <Footer books={books} settings={settings} />}
 
       {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/read') && showCookieConsent && <CookieConsentPopup onConsent={handleCookieConsent} />}
-      {dashboardOpen && currentUser && <UserDashboardModal tab={dashboardTab} currentUser={currentUser} setCurrentUser={setCurrentUser} onClose={() => setDashboardOpen(false)} showToast={setToast} />}
+      {dashboardOpen && currentUser && <UserDashboardModal tab={dashboardTab} currentUser={currentUser} setCurrentUser={setCurrentUser} onClose={() => setDashboardOpen(false)} showToast={setToast} books={books} wishlist={wishlist} toggleWishlist={toggleWishlist} addToCart={addToCart} />}
       {loginOpen && <LoginModal onClose={() => setLoginOpen(false)} showToast={setToast} go={go} setCurrentUser={setCurrentUser} />}
       {!location.pathname.startsWith('/admin') && !location.pathname.startsWith('/read') && newsletterPopupOpen && currentUser && (
         <NewsletterPopup 

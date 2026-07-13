@@ -24,9 +24,9 @@ const staggerContainer = {
 
 import { Link } from "react-router-dom";
 
-export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
+export function ShopPage({ search, setSearch, filtered, addToCart, openBook, wishlist, toggleWishlist }: {
   search: string; setSearch: (s: string) => void; filtered: Book[];
-  addToCart: (b: Book) => void; openBook: (b: Book) => void;
+  addToCart: (b: Book) => void; openBook: (b: Book) => void; wishlist: number[]; toggleWishlist: (id: number) => void;
 }) {
   const [selectedGenre, setSelectedGenre] = React.useState("All");
   const [sortBy, setSortBy] = React.useState("default");
@@ -165,6 +165,9 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
                   <div style={{ background: "#730000", padding: "28px 20px", display: "flex", justifyContent: "center", cursor: "pointer", position: "relative" }} onClick={() => openBook(book)}>
                     <div style={{ position: "relative" }}>
                       <BookCoverSVG src={book.frontCover} width={130} height={182} />
+                      <button onClick={(e) => { e.stopPropagation(); toggleWishlist(book.id); }} style={{ position: "absolute", top: 10, right: 10, background: "rgba(255,255,255,0.9)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 16, zIndex: 10, boxShadow: "0 2px 5px rgba(0,0,0,0.2)" }} title="Toggle Wishlist">
+                        {wishlist.includes(book.id) ? "❤️" : "🤍"}
+                      </button>
                       {book.is_upcoming ? (
                         <div style={{ position: "absolute", top: -8, right: -8, background: "#D4AF37", color: "#2D1B10", fontSize: 10, fontWeight: 800, padding: "4px 10px", borderRadius: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>UPCOMING</div>
                       ) : book.price === 0 ? (
@@ -207,7 +210,7 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
                     {book.is_upcoming ? (
                       <div style={{ display: 'flex', gap: 8, flex: 1, flexDirection: 'column' }}>
                         <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, background: "#730000", color: "#fff", border: "none", fontSize: 13, padding: "10px 8px" }} />
-                        <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000", fontSize: 13, padding: "10px 8px" }}>💖 Wishlist</button>
+                        <button className="btn-primary" onClick={(e) => { e.stopPropagation(); toggleWishlist(book.id); }} style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000", fontSize: 13, padding: "10px 8px" }}>{wishlist.includes(book.id) ? "❤️ Wishlisted" : "🤍 Wishlist"}</button>
                       </div>
                     ) : book.price === 0 ? (
                       <Link to={`/read/${book.slug || book.id}`} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>

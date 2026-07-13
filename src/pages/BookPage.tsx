@@ -7,7 +7,7 @@ import { SEO } from "../components/common/SEO";
 import { Breadcrumbs } from "../components/common/Breadcrumbs";
 import { WordReveal } from "../components/common/WordReveal";
 
-export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: Book) => void; go: (p: Page) => void; }) {
+export function BookPage({ book, addToCart, go, wishlist, toggleWishlist }: { book: Book; addToCart: (b: Book) => void; go: (p: Page) => void; wishlist: number[]; toggleWishlist: (id: number) => void; }) {
   const [tab, setTab] = useState<"description" | "details">("description");
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -199,7 +199,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
               <>
                 <div style={{ display: "flex", gap: 12, width: "100%" }}>
                   <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, background: "#730000", color: "#fff", border: "none", borderRadius: 12 }} />
-                  <button style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>❤️ Wishlist</button>
+                  <button onClick={() => toggleWishlist(book.id)} style={{ flex: 1, background: wishlist.includes(book.id) ? "#730000" : "transparent", color: wishlist.includes(book.id) ? "#ffffff" : "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = wishlist.includes(book.id) ? "#730000" : "transparent"; e.currentTarget.style.color = wishlist.includes(book.id) ? "#ffffff" : "#730000"; }}>{wishlist.includes(book.id) ? "❤️ Wishlisted" : "🤍 Wishlist"}</button>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#78716c", fontSize: 13, marginTop: 4 }}>
                   <span style={{ color: "#aa7c11" }}>✔️</span> We'll notify you as soon as the book is available.
@@ -208,11 +208,13 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
             ) : book.price === 0 ? (
               <div style={{ display: "flex", gap: 14, width: "100%" }}>
                 <Link to={`/read/${book.slug || book.id}`} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669", borderRadius: 12 }}>📖 Read Now for Free</Link>
+                <button onClick={() => toggleWishlist(book.id)} style={{ padding: "0 20px", background: wishlist.includes(book.id) ? "#059669" : "transparent", color: wishlist.includes(book.id) ? "#ffffff" : "#059669", border: "2px solid #059669", borderRadius: 12, fontWeight: 800, cursor: "pointer", fontSize: 20, transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} title="Toggle Wishlist">{wishlist.includes(book.id) ? "❤️" : "🤍"}</button>
               </div>
             ) : (
               <div style={{ display: "flex", gap: 14, width: "100%" }}>
                 <button className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, borderRadius: 12 }} onClick={() => addToCart(book)}>🛒 Add to Cart</button>
                 <button onClick={() => { addToCart(book); go("cart"); }} style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>⚡ Buy Now</button>
+                <button onClick={() => toggleWishlist(book.id)} style={{ padding: "0 20px", background: wishlist.includes(book.id) ? "#730000" : "transparent", color: wishlist.includes(book.id) ? "#ffffff" : "#730000", border: "2px solid #730000", borderRadius: 12, fontWeight: 800, cursor: "pointer", fontSize: 20, transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center" }} title="Toggle Wishlist">{wishlist.includes(book.id) ? "❤️" : "🤍"}</button>
               </div>
             )}
           </div>

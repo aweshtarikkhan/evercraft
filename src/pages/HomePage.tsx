@@ -84,7 +84,7 @@ const HERO_TAGLINES = [
     }
   ];
 
-export function HomePage({ go, addToCart, openBook, books, frontStats, testimonials }: { go: (p: Page | string) => void; addToCart: (b: Book) => void; openBook: (b: Book) => void; books: Book[]; frontStats: any; testimonials: any[] }) {
+export function HomePage({ go, addToCart, openBook, books, frontStats, testimonials, wishlist, toggleWishlist }: { go: (p: Page | string) => void; addToCart: (b: Book) => void; openBook: (b: Book) => void; books: Book[]; frontStats: any; testimonials: any[]; wishlist: number[]; toggleWishlist: (id: number) => void }) {
     const { settings } = useSettings();
     const testScrollRef = useRef<HTMLDivElement>(null);
     const [taglineIndex, setTaglineIndex] = useState(0);
@@ -259,19 +259,24 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                     position: "relative"
                                 }}>
                                     {heroBook.frontCover ? (
-                                        <img 
-                                            src={optimizeImage(heroBook.frontCover)} 
-                                            alt={heroBook.title} 
-                                            style={{
-                                                maxWidth: "100%",
-                                                maxHeight: "340px",
-                                                borderRadius: 8,
-                                                objectFit: "contain",
-                                                filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.6))",
-                                                transition: "transform 0.3s ease"
-                                            }}
-                                            className="book-cover-hover"
-                                        />
+                                        <div style={{ position: "relative", display: "inline-block" }}>
+                                            <img 
+                                                src={optimizeImage(heroBook.frontCover)} 
+                                                alt={heroBook.title} 
+                                                style={{
+                                                    maxWidth: "100%",
+                                                    maxHeight: "340px",
+                                                    borderRadius: 8,
+                                                    objectFit: "contain",
+                                                    filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.6))",
+                                                    transition: "transform 0.3s ease"
+                                                }}
+                                                className="book-cover-hover"
+                                            />
+                                            <button onClick={(e) => { e.stopPropagation(); toggleWishlist(heroBook.id); }} style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.5)", border: "none", borderRadius: "50%", width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 16, zIndex: 10, backdropFilter: "blur(4px)" }} title="Toggle Wishlist">
+                                                {wishlist.includes(heroBook.id) ? "❤️" : "🤍"}
+                                            </button>
+                                        </div>
                                     ) : (
                                         <div style={{
                                             width: 200,
@@ -510,12 +515,15 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                     /* Real Book cover */
                                     <div key={`bestseller-${bestsellerBook.id}`} style={{ position: "relative", cursor: "pointer" }} onClick={() => openBook(bestsellerBook)}>
                                         <div style={{ position: "absolute", inset: -12, background: "radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%)", filter: "blur(12px)" }} />
-                                        <div style={{ transition: "transform 0.3s" }} onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.03)")} onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
+                                        <div style={{ transition: "transform 0.3s", position: "relative", display: "inline-block" }} onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.03)")} onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}>
                                             {bestsellerBook.frontCover ? (
                                                 <img src={optimizeImage(bestsellerBook.frontCover)} alt={bestsellerBook.title} style={{ width: 290, height: 410, borderRadius: 8, filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.15))", objectFit: "cover", background: "#f3f4f6" }} />
                                             ) : (
                                                 <div style={{ width: 290, height: 410, borderRadius: 8, background: "#e5e7eb", display: "flex", alignItems: "center", justifyContent: "center", filter: "drop-shadow(0 15px 30px rgba(0,0,0,0.15))", color: "#9ca3af", fontWeight: 700 }}>No Cover</div>
                                             )}
+                                            <button onClick={(e) => { e.stopPropagation(); toggleWishlist(bestsellerBook.id); }} style={{ position: "absolute", top: 12, right: 12, background: "rgba(255,255,255,0.9)", border: "none", borderRadius: "50%", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 18, zIndex: 10, boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }} title="Toggle Wishlist">
+                                                {wishlist.includes(bestsellerBook.id) ? "❤️" : "🤍"}
+                                            </button>
                                         </div>
                                     </div>
                                 )}
@@ -619,7 +627,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                              {bestsellerBook.is_upcoming ? (
                                                  <>
                                                    <NotifyMeButton bookId={bestsellerBook.id} className="btn-primary" style={{ flex: 1, background: "#730000", color: "#fff", border: "none" }} />
-                                                   <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000" }}>💖 Wishlist</button>
+                                                   <button className="btn-primary" onClick={(e) => { e.stopPropagation(); toggleWishlist(bestsellerBook.id); }} style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000" }}>{wishlist.includes(bestsellerBook.id) ? "❤️ Wishlisted" : "🤍 Wishlist"}</button>
                                                  </>
                                              ) : bestsellerBook.price === 0 ? (
                                                  <Link to={`/read/${bestsellerBook.slug}`} className="btn-primary" style={{ flex: 1, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
