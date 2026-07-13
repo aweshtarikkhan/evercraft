@@ -660,7 +660,7 @@ export function AdminPanel({
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 32 }}>
               <div style={adminCardStyle}>
-                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Hero Section (Newly Launched)</h3>
+                <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Upcoming Book on Homepage</h3>
                 <select id="heroSelect" key={books.find(b => b.is_hero)?.id || "h"} defaultValue={books.find(b => b.is_hero)?.id || ""} style={adminSelectStyle}>
                   <option value="" disabled>Select a book</option>
                   {books.map(b => <option key={b.id} value={b.id}>{b.title}</option>)}
@@ -668,11 +668,11 @@ export function AdminPanel({
                 <button onClick={async () => {
                   const id = (document.getElementById("heroSelect") as HTMLSelectElement).value;
                   if (id) {
-                    await fetch(`${API_BASE_URL}/books/hero/${id}`, { method: "POST" });
+                    await fetch(`${API_BASE_URL}/books/hero/${id}`, { method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token") || ""}` } });
                     await refreshBooks();
-                    alert("Hero book updated successfully!");
+                    alert("Upcoming book updated successfully!");
                   }
-                }} className="btn-primary" style={{ marginTop: 12, padding: "8px 16px" }}>Update Hero Book</button>
+                }} className="btn-primary" style={{ marginTop: 12, padding: "8px 16px" }}>Update Upcoming Book</button>
               </div>
               <div style={adminCardStyle}>
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#2D1B10" }}>Best Selling Section</h3>

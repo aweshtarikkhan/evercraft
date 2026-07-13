@@ -1024,6 +1024,10 @@ router.put('/books/:id', verifyToken, adminOnly, validate(BookCreateSchema), asy
     is_hero, is_bestseller, stock, is_upcoming
   } = req.body;
 
+  // Check previous status
+  const prevBooks = await query('SELECT is_upcoming, available FROM books WHERE id = ?', [bookId]);
+  const wasUpcoming = prevBooks.length > 0 ? Boolean(prevBooks[0].is_upcoming) : false;
+
   await query(
     `UPDATE books SET
       title=?, titleHindi=?, author=?, authorHindi=?, mrp=?, price=?, isbn=?, genre=?, language=?,
@@ -1039,6 +1043,30 @@ router.put('/books/:id', verifyToken, adminOnly, validate(BookCreateSchema), asy
     ]
   );
   
+  // If it transitioned from upcoming to available, send emails
+  if (wasUpcoming && (!is_upcoming || available)) {
+    const notifications = await query('SELECT user_email FROM book_notifications WHERE book_id = ?', [bookId]);
+    if (notifications.length > 0) {
+      for (const notif of notifications) {
+        await sendEmail({
+          to: notif.user_email,
+          subject: `${title} is Now Available!`,
+          htmlContent: `<div style="font-family: sans-serif; padding: 20px;">
+            <h2 style="color: #730000;">Great News!</h2>
+            <p>Hi there,</p>
+            <p>The wait is over! <strong>${title}</strong> is now officially available for purchase.</p>
+            <p>Visit our website to secure your copy today.</p>
+            <br/>
+            <p>Best regards,</p>
+            <p><strong>EverCraft Publications</strong></p>
+          </div>`
+        });
+      }
+      // Clean up notifications so we don't email them again
+      await query('DELETE FROM book_notifications WHERE book_id = ?', [bookId]);
+    }
+  }
+
   return res.json({ message: 'Book updated' });
 });
 
@@ -1053,10 +1081,30 @@ router.post('/books/:id/notify', async (req: Request, res: Response) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
+  const books = await query('SELECT title FROM books WHERE id = ?', [bookId]);
+  if (books.length === 0) return res.status(404).json({ error: 'Book not found' });
+  const bookTitle = books[0].title;
+
   await query(
     'INSERT INTO book_notifications (book_id, user_email) VALUES (?, ?)',
     [bookId, email]
   );
+
+  // Send Thank you email
+  await sendEmail({
+    to: email,
+    subject: `You're on the list for ${bookTitle}!`,
+    htmlContent: `<div style="font-family: sans-serif; padding: 20px;">
+      <h2 style="color: #730000;">Thank You for Your Interest!</h2>
+      <p>Hi there,</p>
+      <p>Thank you for showing interest in our upcoming release: <strong>${bookTitle}</strong>.</p>
+      <p>We've added your email to our notification list. As soon as the book becomes available for purchase, you will be the first to know!</p>
+      <br/>
+      <p>Best regards,</p>
+      <p><strong>EverCraft Publications</strong></p>
+    </div>`
+  });
+
   return res.json({ message: 'Notification subscription successful' });
 });
 

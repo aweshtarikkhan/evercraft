@@ -306,7 +306,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                         borderRadius: 20,
                                         border: "1px solid rgba(212, 175, 55, 0.3)"
                                     }}>
-                                        Featured Title ✨
+                                        {heroBook.is_upcoming ? "Upcoming Release ✨" : "Featured Title ✨"}
                                     </div>
                                 </div>
                             ) : (
