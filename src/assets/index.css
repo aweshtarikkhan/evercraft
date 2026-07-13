@@ -99,11 +99,19 @@ div[style*="linear-gradient"] .gold-shimmer {
   background-color: #730000 !important;
   border-color: #730000 !important;
 }
-.card-hover:hover h3, .card-hover:hover p, .card-hover:hover span, .card-hover:hover .view-link {
+.card-hover:hover h3, .card-hover:hover p, .card-hover:hover span, .card-hover:hover .view-link, .card-hover:hover strong {
   color: #FAF5EF !important;
 }
-.card-hover h3, .card-hover p, .card-hover span, .card-hover .view-link {
+.card-hover h3, .card-hover p, .card-hover span, .card-hover .view-link, .card-hover strong {
   transition: color 0.4s ease;
+}
+.card-hover:hover button, .card-hover:hover .btn-primary {
+  background-color: #FAF5EF !important;
+  color: #730000 !important;
+  border-color: #FAF5EF !important;
+}
+.card-hover button, .card-hover .btn-primary {
+  transition: all 0.4s ease;
 }
 .card-hover-body {
   background-color: #ffffff;
