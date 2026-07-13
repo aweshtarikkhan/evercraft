@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import { Resend } from "resend";
 dotenv.config();
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_EpUJKf6t_AXAJFTTxqBAV669uj6QPS2Cj";
-const SENDER_EMAIL = process.env.SENDER_EMAIL || "info@evercraft.co.in";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "re_Gc6XkLM7_CeDFiurzDgZAw99pngtP19py";
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "noreply@evercraft.co.in";
 const SENDER_NAME = process.env.SENDER_NAME || "EverCraft Publications";
 
 const resend = new Resend(RESEND_API_KEY);
