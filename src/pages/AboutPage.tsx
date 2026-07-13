@@ -237,7 +237,7 @@ export function AboutPage({ go }: { go: (p: any) => void }) {
                 <h3 style={{ fontWeight: 800, color: "#730000", marginBottom: 6 }}>{t.name}</h3>
                 <p style={{ color: "#aa7c11", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{t.role}</p>
                 <p style={{ color: "#5c3a21", fontSize: 13, lineHeight: 1.6 }}>{t.desc}</p>
-                <div style={{ fontSize: 13, color: "#730000", fontWeight: 700, marginTop: 14 }}>
+                <div className="view-link" style={{ fontSize: 13, color: "#730000", fontWeight: 700, marginTop: 14 }}>
                   {t.name === "Distribution Hub" ? "View Partners →" : "View Members →"}
                 </div>
               </motion.div>

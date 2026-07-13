@@ -99,10 +99,10 @@ div[style*="linear-gradient"] .gold-shimmer {
   background-color: #730000 !important;
   border-color: #730000 !important;
 }
-.card-hover:hover h3, .card-hover:hover p, .card-hover:hover span {
+.card-hover:hover h3, .card-hover:hover p, .card-hover:hover span, .card-hover:hover .view-link {
   color: #FAF5EF !important;
 }
-.card-hover h3, .card-hover p, .card-hover span {
+.card-hover h3, .card-hover p, .card-hover span, .card-hover .view-link {
   transition: color 0.4s ease;
 }
 .card-hover-body {
