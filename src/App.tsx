@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useLayoutEffect, FC } from "react";
-import { Routes, Route, Link, useNavigate, useLocation, useParams, } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation, useParams, Navigate } from "react-router-dom";
 import { Page, Book, CartItem, User } from "./types";
 import { SOCIAL_LINKS } from "./constants/data"; 
 import { uploadImageToCloudinary, compressImage } from "./utils/cloudinary";
@@ -555,10 +555,24 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
 
 // ─── BOOK PAGE WRAPPER ────────────────────────────────────────────────────────
 function BookPageWrapper({ books, addToCart, go }: { books: Book[], addToCart: (b: Book) => void, go: (p: Page | string) => void }) {
+  const { slug } = useParams();
+  const book = books.find(b => b.slug === slug);
+  if (!book) return <div style={{ padding: "100px 24px", textAlign: "center", fontSize: 20 }}>Book not found!</div>;
+  return <BookPage book={book} addToCart={addToCart} go={go as any} />;
+}
+
+function BookIdRedirectWrapper({ books }: { books: Book[] }) {
   const { id } = useParams();
   const book = books.find(b => String(b.id) === id);
   if (!book) return <div style={{ padding: "100px 24px", textAlign: "center", fontSize: 20 }}>Book not found!</div>;
-  return <BookPage book={book} addToCart={addToCart} go={go as any} />;
+  return <Navigate to={`/book/${book.slug}`} replace />;
+}
+
+function FreeReaderIdRedirectWrapper({ books }: { books: Book[] }) {
+  const { id } = useParams();
+  const book = books.find(b => String(b.id) === id);
+  if (!book) return <div style={{ padding: "100px 24px", textAlign: "center", fontSize: 20 }}>Book not found!</div>;
+  return <Navigate to={`/read/${book.slug}`} replace />;
 }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
@@ -874,7 +888,7 @@ export default function App() {
   }, [removeFromCart]);
 
   const openBook = useCallback((book: Book) => {
-    navigate(`/book/${book.id}`);
+    navigate(`/book/${book.slug}`);
   }, [navigate]);
   // Ensure cart items are valid before reducing
   const validCart = cart.filter(item => item && typeof item === 'object' && item.id && typeof item.price === 'number' && typeof item.qty === 'number');
@@ -1063,8 +1077,10 @@ export default function App() {
           <Route path="/publish" element={<PublishPage settings={settings} />} />
           <Route path="/contact" element={<ContactPage settings={settings} />} />
           <Route path="/cart" element={<CartPage cart={cart} removeFromCart={removeFromCart} updateQty={updateQty} total={cartTotal} go={go as any} currentUser={currentUser} setCart={setCart} showToast={setToast} setLoginOpen={setLoginOpen} setDashboardOpen={setDashboardOpen} setDashboardTab={setDashboardTab} />} />
-          <Route path="/book/:id" element={<BookPageWrapper books={books} addToCart={addToCart} go={go} />} />
-          <Route path="/read/:id" element={<FreeReaderPage books={books} />} />
+          <Route path="/book/:slug" element={<BookPageWrapper books={books} addToCart={addToCart} go={go} />} />
+          <Route path="/book/:id(\d+)" element={<BookIdRedirectWrapper books={books} />} />
+          <Route path="/read/:slug" element={<FreeReaderPage books={books} />} />
+          <Route path="/read/:id(\d+)" element={<FreeReaderIdRedirectWrapper books={books} />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-conditions" element={<TermsConditionsPage />} />
           <Route path="/refund-policy" element={<RefundPolicyPage />} />

@@ -210,7 +210,7 @@ export function ShopPage({ search, setSearch, filtered, addToCart, openBook }: {
                         <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000", fontSize: 13, padding: "10px 8px" }}>💖 Wishlist</button>
                       </div>
                     ) : book.price === 0 ? (
-                      <Link to={`/read/${book.id}`} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
+                      <Link to={`/read/${book.slug}`} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
                     ) : (
                       <button onClick={() => addToCart(book)} className="btn-primary" style={{ flex: 1, padding: "10px 8px", fontSize: 13 }}>🛒 Add to Cart</button>
                     )}

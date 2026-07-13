@@ -165,6 +165,31 @@ export function AdminPanel({
     ? Math.round(((Number(bookForm.mrp) - Number(bookForm.price)) / Number(bookForm.mrp) * 100))
     : 0;
 
+  const translateField = async (field: 'title' | 'author' | 'description', fromLang: 'en' | 'hi') => {
+    const sourceField = fromLang === 'en' ? field : `${field}Hindi`;
+    const targetField = fromLang === 'en' ? `${field}Hindi` : field;
+    const textToTranslate = bookForm[sourceField as keyof typeof bookForm] as string;
+    
+    if (!textToTranslate) return;
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: textToTranslate, from: fromLang, to: fromLang === 'en' ? 'hi' : 'en' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setBookForm(prev => ({ ...prev, [targetField]: data.translated }));
+      } else {
+        alert("Translation failed. Make sure backend is running.");
+      }
+    } catch (err) {
+      console.error("Translation failed:", err);
+      alert("Translation failed. Make sure backend is running.");
+    }
+  };
+
   // Search/Filters states
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [orderSearchQuery, setOrderSearchQuery] = useState("");
@@ -1617,19 +1642,31 @@ export function AdminPanel({
             }} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>1. Title Name (English) *</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>1. Title Name (English) *</label>
+                    <button type="button" onClick={() => translateField('title', 'en')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                  </div>
                   <input required type="text" value={bookForm.title} onChange={e => setBookForm({ ...bookForm, title: e.target.value })} style={adminInputStyle} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>2. Title Name (Hindi)</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>2. Title Name (Hindi)</label>
+                    <button type="button" onClick={() => translateField('title', 'hi')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                  </div>
                   <input type="text" value={bookForm.titleHindi} onChange={e => setBookForm({ ...bookForm, titleHindi: e.target.value })} style={adminInputStyle} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>3. Author Name (English) *</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>3. Author Name (English) *</label>
+                    <button type="button" onClick={() => translateField('author', 'en')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                  </div>
                   <input required type="text" value={bookForm.author} onChange={e => setBookForm({ ...bookForm, author: e.target.value })} style={adminInputStyle} />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>4. Author Name (Hindi)</label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>4. Author Name (Hindi)</label>
+                    <button type="button" onClick={() => translateField('author', 'hi')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                  </div>
                   <input type="text" value={bookForm.authorHindi} onChange={e => setBookForm({ ...bookForm, authorHindi: e.target.value })} style={adminInputStyle} />
                 </div>
                 <div>
@@ -1669,7 +1706,7 @@ export function AdminPanel({
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>12. Publisher Name *</label>
-                  <input required type="text" value={bookForm.publisher} onChange={e => setBookForm({ ...bookForm, publisher: e.target.value })} style={adminInputStyle} />
+                  <input readOnly type="text" value="EverCraft Publications" style={{...adminInputStyle, background: "#f0f0f0", color: "#666", cursor: "not-allowed"}} />
                 </div>
                 <div>
                   <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>13. Badge (e.g. New)</label>
@@ -1746,11 +1783,17 @@ export function AdminPanel({
               </div>
 
               <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>22. Description (English)</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>22. Description (English)</label>
+                  <button type="button" onClick={() => translateField('description', 'en')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                </div>
                 <textarea rows={4} value={bookForm.description} onChange={e => setBookForm({ ...bookForm, description: e.target.value })} placeholder="Enter book description in English..." style={adminTextareaStyle}></textarea>
               </div>
               <div>
-                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#2D1B10", marginBottom: 6 }}>23. Description (Hindi)</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: "#2D1B10" }}>23. Description (Hindi)</label>
+                  <button type="button" onClick={() => translateField('description', 'hi')} style={{ background: "none", border: "none", color: "#730000", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>🔄 Translate</button>
+                </div>
                 <textarea rows={4} value={bookForm.descriptionHindi} onChange={e => setBookForm({ ...bookForm, descriptionHindi: e.target.value })} placeholder="पुस्तक का संक्षिप्त विवरण हिंदी में दर्ज करें..." style={adminTextareaStyle}></textarea>
               </div>
 

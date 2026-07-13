@@ -97,7 +97,8 @@ export async function initDb() {
         is_hero BOOLEAN DEFAULT FALSE, 
         is_bestseller BOOLEAN DEFAULT FALSE,
         stock INT DEFAULT 0,
-        is_upcoming BOOLEAN DEFAULT FALSE
+        is_upcoming BOOLEAN DEFAULT FALSE,
+        slug VARCHAR(255) UNIQUE
       )
     `);
 
@@ -113,6 +114,39 @@ export async function initDb() {
       await query(`ALTER TABLE books ADD COLUMN is_upcoming BOOLEAN DEFAULT FALSE`);
     } catch (e: any) {
       if (e.code !== 'ER_DUP_FIELDNAME') console.error('Error adding is_upcoming column:', e);
+    }
+
+    // Safely add slug column if it doesn't exist
+    try {
+      await query(`ALTER TABLE books ADD COLUMN slug VARCHAR(255) UNIQUE`);
+    } catch (e: any) {
+      if (e.code !== 'ER_DUP_FIELDNAME') console.error('Error adding slug column:', e);
+    }
+
+    // Backfill slugs for existing books
+    const booksWithoutSlug = await query(`SELECT id, title, author FROM books WHERE slug IS NULL OR slug = ''`);
+    if (booksWithoutSlug && booksWithoutSlug.length > 0) {
+      for (const b of booksWithoutSlug) {
+        if (b.title && b.author) {
+          const generatedSlug = (b.title + " " + b.author).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+          let uniqueSlug = generatedSlug;
+          let counter = 1;
+          while (true) {
+            try {
+              await query(`UPDATE books SET slug = ? WHERE id = ?`, [uniqueSlug, b.id]);
+              break;
+            } catch (err: any) {
+              if (err.code === 'ER_DUP_ENTRY') {
+                counter++;
+                uniqueSlug = `${generatedSlug}-${counter}`;
+              } else {
+                console.error('Error updating slug for book', b.id, err);
+                break;
+              }
+            }
+          }
+        }
+      }
     }
 
     await query(`

@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 
+const https = require('https');
+
 const PORT = 4173;
 const DIST_DIR = path.join(__dirname, 'dist');
 
@@ -17,9 +19,29 @@ const routes = [
   '/policies'
 ];
 
+async function fetchBookRoutes() {
+  return new Promise((resolve) => {
+    https.get('https://www.evercraft.co.in/api/books', (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const books = JSON.parse(data);
+          resolve(books.map(b => `/book/${b.slug}`));
+        } catch(e) {
+          resolve([]);
+        }
+      });
+    }).on('error', () => resolve([]));
+  });
+}
+
 async function prerender() {
   console.log('Starting prerender process...');
   
+  const bookRoutes = await fetchBookRoutes();
+  const allRoutes = [...routes, ...bookRoutes];
+
   // 1. Start local server serving the dist folder
   const app = express();
   app.use(express.static(DIST_DIR));
@@ -39,7 +61,7 @@ async function prerender() {
   });
   
   // 3. Render each route
-  for (const route of routes) {
+  for (const route of allRoutes) {
     console.log(`Prerendering ${route}...`);
     const page = await browser.newPage();
     

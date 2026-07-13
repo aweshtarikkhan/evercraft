@@ -29,6 +29,7 @@ export interface Book {
   is_bestseller: boolean;
   is_upcoming: boolean;
   release_date: string;
+  slug: string;
 }
 
 export interface CartItem extends Book { qty: number; }

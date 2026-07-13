@@ -3,6 +3,7 @@ import { query } from './config/database';
 import { validate } from './middleware/validate';
 import { generateToken, verifyToken, rlsCheck, adminOnly } from './middleware/auth';
 import { sendEmail, getOrderTrackingHTML } from './utils/mailer';
+import translate from 'google-translate-api-x';
 import {
   DuplicateCheckSchema,
   UserSignupSchema,
@@ -989,6 +990,32 @@ router.get('/books', async (req: Request, res: Response) => {
   return res.json(formatted);
 });
 
+router.post('/translate', async (req: Request, res: Response) => {
+  try {
+    const { text, from, to } = req.body;
+    if (!text || !from || !to) return res.status(400).json({ error: 'Missing parameters' });
+    const result = await translate(text, { from, to });
+    return res.json({ translated: (result as any).text });
+  } catch (err: any) {
+    console.error('Translation error:', err);
+    return res.status(500).json({ error: 'Translation failed' });
+  }
+});
+
+router.get('/books/by-slug/:slug', async (req: Request, res: Response) => {
+  const books = await query('SELECT * FROM books WHERE slug = ? LIMIT 1', [req.params.slug]);
+  if (!books || books.length === 0) return res.status(404).json({ error: 'Book not found' });
+  
+  const b = books[0];
+  const formatted = {
+    ...b,
+    is_hero: Boolean(b.is_hero),
+    is_bestseller: Boolean(b.is_bestseller),
+    available: Boolean(b.available)
+  };
+  return res.json(formatted);
+});
+
 router.post('/books', verifyToken, adminOnly, validate(BookCreateSchema), async (req: Request, res: Response) => {
   const {
     title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
@@ -997,18 +1024,28 @@ router.post('/books', verifyToken, adminOnly, validate(BookCreateSchema), async 
     is_hero, is_bestseller, stock, is_upcoming
   } = req.body;
   
+  const generatedSlug = (title + " " + author).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  let slug = generatedSlug;
+  let counter = 1;
+  while (true) {
+    const exists = await query('SELECT id FROM books WHERE slug = ?', [slug]);
+    if (exists.length === 0) break;
+    counter++;
+    slug = `${generatedSlug}-${counter}`;
+  }
+
   await query(
     `INSERT INTO books (
       title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
       pages, badge, rating, reviews, available, frontCover, backCover,
       amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-      is_hero, is_bestseller, stock, is_upcoming
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      is_hero, is_bestseller, stock, is_upcoming, slug
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
       pages, badge, rating, reviews, available, frontCover, backCover,
       amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-      is_hero, is_bestseller, stock, is_upcoming
+      is_hero, is_bestseller, stock, is_upcoming, slug
     ]
   );
   
@@ -1028,18 +1065,28 @@ router.put('/books/:id', verifyToken, adminOnly, validate(BookCreateSchema), asy
   const prevBooks = await query('SELECT is_upcoming, available FROM books WHERE id = ?', [bookId]);
   const wasUpcoming = prevBooks.length > 0 ? Boolean(prevBooks[0].is_upcoming) : false;
 
+  const generatedSlug = (title + " " + author).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  let slug = generatedSlug;
+  let counter = 1;
+  while (true) {
+    const exists = await query('SELECT id FROM books WHERE slug = ? AND id != ?', [slug, bookId]);
+    if (exists.length === 0) break;
+    counter++;
+    slug = `${generatedSlug}-${counter}`;
+  }
+
   await query(
     `UPDATE books SET
       title=?, titleHindi=?, author=?, authorHindi=?, mrp=?, price=?, isbn=?, genre=?, language=?,
       pages=?, badge=?, rating=?, reviews=?, available=?, frontCover=?, backCover=?,
       amazonLink=?, flipkartLink=?, ondcLink=?, description=?, descriptionHindi=?,
-      is_hero=?, is_bestseller=?, stock=?, is_upcoming=?
+      is_hero=?, is_bestseller=?, stock=?, is_upcoming=?, slug=?
     WHERE id=?`,
     [
       title, titleHindi, author, authorHindi, mrp, price, isbn, genre, language,
       pages, badge, rating, reviews, available, frontCover, backCover,
       amazonLink, flipkartLink, ondcLink, description, descriptionHindi,
-      is_hero, is_bestseller, stock, is_upcoming, bookId
+      is_hero, is_bestseller, stock, is_upcoming, slug, bookId
     ]
   );
   

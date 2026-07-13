@@ -622,7 +622,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                                                    <button className="btn-primary" style={{ flex: 1, background: "transparent", border: "2px solid #730000", color: "#730000" }}>💖 Wishlist</button>
                                                  </>
                                              ) : bestsellerBook.price === 0 ? (
-                                                 <Link to={`/read/${bestsellerBook.id}`} className="btn-primary" style={{ flex: 1, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
+                                                 <Link to={`/read/${bestsellerBook.slug}`} className="btn-primary" style={{ flex: 1, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now</Link>
                                              ) : (
                                                  <button className="btn-primary" style={{ flex: 1 }} onClick={() => addToCart(bestsellerBook)}>🛒 Add to Cart</button>
                                              )}

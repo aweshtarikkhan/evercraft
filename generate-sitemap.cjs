@@ -13,13 +13,27 @@ const routes = [
   '/policies'
 ];
 
-function generateSitemap() {
+async function generateSitemap() {
   const date = new Date().toISOString().split('T')[0];
   
+  // Fetch books from API to generate dynamic routes
+  let bookRoutes = [];
+  try {
+    const res = await fetch('https://www.evercraft.co.in/api/books');
+    if (res.ok) {
+      const books = await res.json();
+      bookRoutes = books.map((b) => `/book/${b.slug}`);
+    }
+  } catch (err) {
+    console.warn("Could not fetch books for sitemap", err);
+  }
+
+  const allRoutes = [...routes, ...bookRoutes];
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-  for (const route of routes) {
+  for (const route of allRoutes) {
     let priority = '0.8';
     if (route === '/') priority = '1.0';
     if (route === '/shop' || route === '/publish') priority = '0.9';

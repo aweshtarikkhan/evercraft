@@ -51,7 +51,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
         description={book.description?.substring(0, 155) || `Buy ${book.title} by ${book.author} at EverCraft Publications. Available on Amazon, Flipkart & direct delivery across India.`}
         keywords={`${book.title}, ${book.author}, buy ${book.title} online, ${book.genre} books India, EverCraft Publications books, ${book.language} books online`}
         image={book.frontCover}
-        url={`https://www.evercraft.co.in/book/${book.id}`}
+        url={`https://www.evercraft.co.in/book/${book.slug}`}
         type="product"
         jsonLd={{
           "@context": "https://schema.org",
@@ -64,7 +64,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
           "genre": book.genre,
           "publisher": { "@type": "Organization", "name": book.publisher || "EverCraft Publications" },
           "image": book.frontCover,
-          "url": `https://www.evercraft.co.in/book/${book.id}`,
+          "url": `https://www.evercraft.co.in/book/${book.slug}`,
           "description": book.description?.substring(0, 200),
           "offers": book.price ? {
             "@type": "Offer",
@@ -84,7 +84,7 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
         <div style={{ maxWidth: 900, margin: "0 auto", display: "flex", gap: 8, fontSize: 14, color: "#730000" }}>
           <Breadcrumbs items={[
             { title: 'Bookstore', path: '/shop' },
-            { title: book.title, path: `/book/${book.id}` }
+            { title: book.title, path: `/book/${book.slug}` }
           ]} />
         </div>
       </div>
@@ -162,7 +162,11 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
             <WordReveal text={book.title} once={true} />
           </h1>
           {book.titleHindi && book.titleHindi !== book.title && <h2 style={{ fontSize: 20, color: "#aa7c11", fontWeight: 700, marginBottom: 10 }}>{book.titleHindi}</h2>}
-          <p style={{ color: "#78716c", fontSize: 16, marginBottom: 20 }}>by <strong style={{ color: "#2D1B10", fontSize: 18 }}>{book.author}</strong> {book.authorHindi !== book.author && <span style={{ color: "#aa7c11" }}>({book.authorHindi})</span>}</p>
+          <p style={{ color: "#78716c", fontSize: 16, marginBottom: 20, display: "flex", alignItems: "center", gap: 6 }}>
+            by <strong style={{ color: "#2D1B10", fontSize: 18 }}>{book.author}</strong> 
+            <span style={{ color: "#aa7c11", fontSize: 16, display: "flex", alignItems: "center", background: "#fef08a", borderRadius: "50%", padding: 2, width: 20, height: 20, justifyContent: "center" }}>✔</span>
+            {book.authorHindi && book.authorHindi !== book.author && <span style={{ color: "#aa7c11" }}>({book.authorHindi})</span>}
+          </p>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, background: "#ffffff", padding: "12px 16px", borderRadius: 12, border: "1.5px solid rgba(115, 0, 0, 0.15)" }}>
             <Stars rating={book.rating} size={20} />
@@ -171,8 +175,12 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
           </div>
 
           {book.is_upcoming ? (
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 24 }}>
-              <span style={{ fontSize: 32, fontWeight: 900, color: "#aa7c11" }}>Coming Soon</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, background: "#fef8e7", padding: "16px 20px", borderRadius: 12, border: "1px solid rgba(212,175,55,0.3)" }}>
+              <div style={{ background: "#ffffff", border: "1px solid rgba(212,175,55,0.3)", borderRadius: "50%", width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>📅</div>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#aa7c11", marginBottom: 4 }}>Coming Soon</div>
+                <div style={{ fontSize: 14, color: "#5C3A21" }}>This book is currently under preparation<br/>and will be available soon.</div>
+              </div>
             </div>
           ) : book.price === 0 ? (
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 24 }}>
@@ -186,19 +194,26 @@ export function BookPage({ book, addToCart, go }: { book: Book; addToCart: (b: B
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 14, marginBottom: 32 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 32 }}>
             {book.is_upcoming ? (
-              <div style={{ display: "flex", gap: 12 }}>
-                <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, background: "#730000", color: "#fff", border: "none" }} />
-                <button style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>💖 Wishlist</button>
-              </div>
-            ) : book.price === 0 ? (
-              <Link to={`/read/${book.id}`} className="btn-primary" style={{ padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669" }}>📖 Read Now for Free</Link>
-            ) : (
               <>
-                <button className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15 }} onClick={() => addToCart(book)}>🛒 Add to Cart</button>
-                <button onClick={() => { addToCart(book); go("cart"); }} style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>⚡ Buy Now</button>
+                <div style={{ display: "flex", gap: 12, width: "100%" }}>
+                  <NotifyMeButton bookId={book.id} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, background: "#730000", color: "#fff", border: "none", borderRadius: 12 }} />
+                  <button style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>❤️ Wishlist</button>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#78716c", fontSize: 13, marginTop: 4 }}>
+                  <span style={{ color: "#aa7c11" }}>✔️</span> We'll notify you as soon as the book is available.
+                </div>
               </>
+            ) : book.price === 0 ? (
+              <div style={{ display: "flex", gap: 14, width: "100%" }}>
+                <Link to={`/read/${book.slug}`} className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, textDecoration: "none", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", background: "#059669", borderRadius: 12 }}>📖 Read Now for Free</Link>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 14, width: "100%" }}>
+                <button className="btn-primary" style={{ flex: 1, padding: "15px 20px", fontSize: 15, borderRadius: 12 }} onClick={() => addToCart(book)}>🛒 Add to Cart</button>
+                <button onClick={() => { addToCart(book); go("cart"); }} style={{ flex: 1, background: "transparent", color: "#730000", border: "2px solid #730000", borderRadius: 12, padding: "15px 20px", fontWeight: 800, cursor: "pointer", fontSize: 15, transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.background = "#730000"; e.currentTarget.style.color = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#730000"; }}>⚡ Buy Now</button>
+              </div>
             )}
           </div>
 

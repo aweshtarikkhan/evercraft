@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Book } from "../types";
 
 export function FreeReaderPage({ books }: { books: Book[] }) {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
   // Filter only free books
   const freeBooks = books.filter(b => b.price === 0);
 
   // Determine active index
-  const initialIndex = freeBooks.findIndex(b => String(b.id) === id);
+  const initialIndex = freeBooks.findIndex(b => b.slug === slug);
   const activeIndex = initialIndex !== -1 ? initialIndex : 0;
   const activeBook = freeBooks[activeIndex];
 
@@ -30,14 +30,14 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
     if (freeBooks.length <= 1) return;
     setDirection(1);
     const nextIndex = (activeIndex + 1) % freeBooks.length;
-    navigate(`/read/${freeBooks[nextIndex].id}`);
+    navigate(`/read/${freeBooks[nextIndex].slug}`);
   };
 
   const handlePrevBook = () => {
     if (freeBooks.length <= 1) return;
     setDirection(-1);
     const prevIndex = (activeIndex - 1 + freeBooks.length) % freeBooks.length;
-    navigate(`/read/${freeBooks[prevIndex].id}`);
+    navigate(`/read/${freeBooks[prevIndex].slug}`);
   };
 
   // Keyboard navigation
@@ -108,7 +108,7 @@ export function FreeReaderPage({ books }: { books: Book[] }) {
         title={`Read ${activeBook.title} Free Online`} 
         description={`Read ${activeBook.title} by ${activeBook.author} for free online at EverCraft Publications. Free ${activeBook.genre} books available for all readers.`}
         keywords={`read ${activeBook.title} free, free books online India, ${activeBook.genre} free books, EverCraft free reading`}
-        url={`https://www.evercraft.co.in/read/${activeBook.id}`}
+        url={`https://www.evercraft.co.in/read/${activeBook.slug}`}
       />
       {/* Subtle floating Close Button */}
       <Link
