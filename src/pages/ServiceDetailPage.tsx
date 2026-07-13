@@ -131,7 +131,7 @@ export function ServiceDetailPage() {
           <Link to="/services" style={{ color: "#D4AF37", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
             ← Back to All Services
           </Link>
-          <div style={{ fontSize: 72, marginBottom: 20 }}>{service.icon}</div>
+          <div style={{ fontSize: 72, marginBottom: 20, display: 'inline-block', transform: service.title === "Editing & Proofreading" ? "rotateX(180deg)" : "none" }}>{service.icon}</div>
           <h1 style={{ fontSize: "clamp(38px,5.5vw,56px)", fontWeight: 800, marginBottom: 16, color: "#FAF5EF", fontFamily: "'Playfair Display', Georgia, serif" }}>
             <WordReveal text={service.title} once={true} />
           </h1>

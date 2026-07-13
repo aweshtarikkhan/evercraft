@@ -363,7 +363,7 @@ export function HomePage({ go, addToCart, openBook, books, frontStats, testimoni
                         variants={fadeInUp}
                     >
                         <h2 style={{ color: "#730000", fontSize: "clamp(16px, 2.5vw, 24px)", fontWeight: 800, marginBottom: 32, letterSpacing: "1px", textTransform: "uppercase", whiteSpace: "nowrap" }}>
-                            WANT TO PUBLISH YOUR BOOK? SIGN UP TODAY!
+                            WANT TO PUBLISH YOUR BOOK? SIGN UP NOW!
                         </h2>
                         
                         <form 

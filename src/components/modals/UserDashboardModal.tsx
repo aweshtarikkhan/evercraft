@@ -191,7 +191,7 @@ export function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, 
               <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24 }}>Order History</h2>
               {orders.length === 0 ? <p style={{ color: "#9ca3af" }}>No orders placed yet.</p> : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  {orders.map(o => {
+                  {orders.slice().reverse().map(o => {
                     const items = JSON.parse(o.items || "[]");
                     return (
                       <div key={o.id} style={{ border: "1px solid rgba(212, 175, 55, 0.2)", borderRadius: 12, padding: 16 }}>

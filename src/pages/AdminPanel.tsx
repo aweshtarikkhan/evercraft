@@ -235,7 +235,7 @@ export function AdminPanel({
     if (!isAuthenticated) return;
     const authHeaders = { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token") || ""}` };
     
-    fetch(`${API_BASE_URL}/stats`).then(r => r.ok ? r.json() : null).then(data => { if(data && data.total_books !== undefined) setStats(data); }).catch(() => {});
+    fetch(`${API_BASE_URL}/stats`, { headers: authHeaders }).then(r => r.ok ? r.json() : null).then(data => { if(data && data.total_books !== undefined) setStats(data); }).catch(() => {});
     
     if (adminTab === "users") fetch(`${API_BASE_URL}/users`, { headers: authHeaders }).then(r => r.ok ? r.json() : []).then(setUsers).catch(() => {});
     if (adminTab === "orders") {

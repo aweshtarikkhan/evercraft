@@ -105,7 +105,7 @@ export function ServicesPage({ go }: { go: (p: any) => void }) {
                 style={{ borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.03)", height: "100%", display: "flex", flexDirection: "column", border: "1.5px solid rgba(115, 0, 0, 0.08)" }}
               >
                 <div style={{ background: s.color, padding: "36px 28px", color: "#fff" }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>{s.icon}</div>
+                  <div style={{ fontSize: 48, marginBottom: 16, display: 'inline-block', transform: s.title === "Editing & Proofreading" ? "rotateX(180deg)" : "none" }}>{s.icon}</div>
                   <h3 style={{ fontSize: 20, fontWeight: 800 }}>{s.title}</h3>
                 </div>
                 <div className="card-hover-body" style={{ padding: "22px 28px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
