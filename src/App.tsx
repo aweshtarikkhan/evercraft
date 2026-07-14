@@ -24,6 +24,15 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
+const optimizeImage = (url: string, width = 600) => {
+  if (!url) return url;
+  if (url.includes('res.cloudinary.com') && !url.includes('/c_scale,')) {
+    return url.replace('/image/upload/', `/image/upload/c_scale,w_${width},q_auto,f_auto/`);
+  }
+  return url;
+};
+
+
 const NewsletterPopup: FC<{user: User, onClose: () => void, showToast: (msg: string) => void}> = ({ user, onClose, showToast }) => {
     const [email, setEmail] = useState(user.email || "");
     const [loading, setLoading] = useState(false);
@@ -478,7 +487,7 @@ function UserDashboardModal({ tab, currentUser, setCurrentUser, onClose, showToa
                     return (
                       <div key={b.id} style={{ border: "1px solid rgba(212, 175, 55, 0.3)", borderRadius: 12, overflow: "hidden", background: "rgba(28, 17, 9, 0.5)", display: "flex", flexDirection: "column" }}>
                         <div style={{ padding: 12, flex: 1 }}>
-                          <img src={b.cover_image} alt={b.title} style={{ width: "100%", height: 200, objectFit: "cover", borderRadius: 8, marginBottom: 12 }} />
+                          <img src={optimizeImage(b.frontCover)} alt={b.title} style={{ width: "100%", height: 200, objectFit: "cover", borderRadius: 8, marginBottom: 12 }} />
                           <h4 style={{ margin: "0 0 4px 0", fontSize: 14, color: "#FAF5EF" }}>{b.title}</h4>
                           <p style={{ margin: 0, fontSize: 12, color: "#D4AF37", fontWeight: 700 }}>₹{b.price}</p>
                         </div>
